@@ -2,13 +2,13 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-interface Config {
+interface IConfig {
   port: number;
   mongoURI: string;
   jwtSecret: string;
 }
 
-const getConfig = (): Config => {
+const getConfig = (): IConfig => {
   const { PORT, MONGO_URI, JWT_SECRET } = process.env;
 
   if (!PORT || !MONGO_URI || !JWT_SECRET) {

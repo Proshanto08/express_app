@@ -3,7 +3,7 @@ import Key from '../models/authKeyModel';
 import { config } from '../config/config';
 import * as jwt from 'jsonwebtoken';
 
-interface JwtPayload {
+interface IJwtPayload {
   key: string;
 }
 
@@ -23,7 +23,7 @@ export const authToken = async (req: Request, res: Response, next: NextFunction)
       return; // Explicitly return to satisfy TypeScript
     }
 
-    const decoded = jwt.verify(token, config.jwtSecret) as JwtPayload;
+    const decoded = jwt.verify(token, config.jwtSecret) as IJwtPayload;
 
     const validKey = await Key.findOne({ key: decoded.key });
 
@@ -33,10 +33,8 @@ export const authToken = async (req: Request, res: Response, next: NextFunction)
     }
 
     next();
-    return; // Explicitly return to satisfy TypeScript
   } catch (err) {
     console.error('Token verification failed:', err);
     res.sendStatus(401);
-    return; // Explicitly return to satisfy TypeScript
   }
 };
