@@ -3,7 +3,7 @@ import app from './app';
 import { config } from './config/config';
 import { generateToken } from './services/authService';
 
-const startServer = async () => {
+const startServer = async (): Promise<void> => {
   try {
     await connectDB();
 
@@ -15,7 +15,7 @@ const startServer = async () => {
     });
   } catch (err) {
     console.error('Error starting server:', err);
-    process.exit(1); 
+    process.exit(1);
   }
 };
 
