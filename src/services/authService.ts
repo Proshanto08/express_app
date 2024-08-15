@@ -2,31 +2,31 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config/config';
 import AuthKey from '../models/authKeyModel';
 
-export const generateToken = (): string => {
-  const Key = 'express';
+interface IJwtPayload {
+  key: string;
+}
+
+
+const checkJwtSecret = (): void => {
   if (!config.jwtSecret) {
     throw new Error('JWT Secret is not defined');
   }
-  return jwt.sign({ key: Key }, config.jwtSecret, { expiresIn: '1h' });
 };
 
-export const verifyToken = async (token: string): Promise<{ key: string } | null> => {
+export const generateToken = (): string => {
+  checkJwtSecret();
+  const key = 'express';
+  return jwt.sign({ key }, config.jwtSecret, { expiresIn: '1h' });
+};
+
+export const verifyToken = async (token: string): Promise<IJwtPayload | null> => {
   try {
-    if (!config.jwtSecret) {
-      throw new Error('JWT Secret is not defined');
-    }
-
-    const decoded = jwt.verify(token, config.jwtSecret) as { key: string };
-
+    checkJwtSecret();
+    const decoded = jwt.verify(token, config.jwtSecret) as IJwtPayload;
     const validKey = await AuthKey.findOne({ key: decoded.key });
-
-    if (!validKey) {
-      return null;
-    }
-
-    return decoded;
+    return validKey ? decoded : null;
   } catch (err) {
-    console.error('Error verifying token:', err);
+    console.error('Token verification failed:', err);
     return null;
   }
 };

@@ -1,40 +1,26 @@
 import { Request, Response, NextFunction } from 'express';
-import Key from '../models/authKeyModel';
-import { config } from '../config/config';
-import * as jwt from 'jsonwebtoken';
-
-interface IJwtPayload {
-  key: string;
-}
+import { verifyToken } from '../services/authService';
 
 export const authToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const authHeader = req.headers.authorization;
   const token = authHeader?.split(' ')[1];
 
   if (!token) {
-    res.sendStatus(401);
-    return; // Explicitly return to satisfy TypeScript
+    res.status(401).json({ message: 'No token provided' });
+    return;
   }
 
   try {
-    if (!config.jwtSecret) {
-      console.error('JWT Secret is not defined');
-      res.sendStatus(500); 
-      return; // Explicitly return to satisfy TypeScript
-    }
+    const decoded = await verifyToken(token);
 
-    const decoded = jwt.verify(token, config.jwtSecret) as IJwtPayload;
-
-    const validKey = await Key.findOne({ key: decoded.key });
-
-    if (!validKey) {
-      res.sendStatus(401);
-      return; // Explicitly return to satisfy TypeScript
+    if (!decoded) {
+      res.status(401).json({ message: 'Invalid token' });
+      return;
     }
 
     next();
   } catch (err) {
-    console.error('Token verification failed:', err);
-    res.sendStatus(401);
+      console.error('Token verification failed:', err);
+      res.status(401).json({ message: 'Token verification failed' });
   }
 };
