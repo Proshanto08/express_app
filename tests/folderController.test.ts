@@ -12,7 +12,6 @@ describe('Folder Controller', () => {
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
       // Intentionally empty
     });
-    
   });
 
   afterAll(() => {
@@ -23,27 +22,75 @@ describe('Folder Controller', () => {
     jest.clearAllMocks();
   });
 
+
+  const testFolderCreation = async (folderData: any, mockResponse: any, expectedResponse: any) => {
+    (createFolder as jest.Mock).mockResolvedValue(mockResponse);
+
+    const response = await request(app)
+      .post('/api/folders')
+      .send(folderData);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(expectedResponse);
+    expect(createFolder).toHaveBeenCalledWith(folderData.name);
+  };
+
+
+  const testFolderFetching = async (url: string, mockResponse: any, expectedResponse: any) => {
+    (getAllFolders as jest.Mock).mockResolvedValue(mockResponse);
+
+    const response = await request(app).get(url);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(expectedResponse);
+    expect(getAllFolders).toHaveBeenCalled();
+  };
+
+ 
+  const testFolderByIdFetching = async (url: string, mockResponse: any, expectedResponse: any) => {
+    (getFolderById as jest.Mock).mockResolvedValue(mockResponse);
+
+    const response = await request(app).get(url);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(expectedResponse);
+    expect(getFolderById).toHaveBeenCalledWith(url.split('/').pop());
+  };
+
+
+  const testFolderUpdating = async (url: string, folderData: any, mockResponse: any, expectedResponse: any) => {
+    (updateFolder as jest.Mock).mockResolvedValue(mockResponse);
+
+    const response = await request(app)
+      .put(url)
+      .send(folderData);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(expectedResponse);
+    expect(updateFolder).toHaveBeenCalledWith(url.split('/').pop(), folderData.name);
+  };
+
+  const testFolderDeletion = async (url: string, mockResponse: any, expectedResponse: any) => {
+    (deleteFolder as jest.Mock).mockResolvedValue(mockResponse);
+
+    const response = await request(app).delete(url);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(expectedResponse);
+    expect(deleteFolder).toHaveBeenCalledWith(url.split('/').pop());
+  };
+
   describe('createFolderController', () => {
     it('should create a new folder and return it', async () => {
       const mockFolder = { id: '1', name: 'New Folder' };
-      (createFolder as jest.Mock).mockResolvedValue(mockFolder);
-
-      const response = await request(app)
-        .post('/api/folders')
-        .send({ name: 'New Folder' });
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockFolder);
-      expect(createFolder).toHaveBeenCalledWith('New Folder');
+      await testFolderCreation({ name: 'New Folder' }, mockFolder, mockFolder);
     });
 
     it('should handle errors when creating a folder', async () => {
       (createFolder as jest.Mock).mockRejectedValue(new Error('Error creating folder'));
-
       const response = await request(app)
         .post('/api/folders')
         .send({ name: 'New Folder' });
-
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ error: 'Internal Server Error' });
     });
@@ -52,20 +99,12 @@ describe('Folder Controller', () => {
   describe('getAllFoldersController', () => {
     it('should return all folders', async () => {
       const mockFolders = [{ id: '1', name: 'Folder 1' }, { id: '2', name: 'Folder 2' }];
-      (getAllFolders as jest.Mock).mockResolvedValue(mockFolders);
-
-      const response = await request(app).get('/api/folders');
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockFolders);
-      expect(getAllFolders).toHaveBeenCalled();
+      await testFolderFetching('/api/folders', mockFolders, mockFolders);
     });
 
     it('should handle errors when fetching folders', async () => {
       (getAllFolders as jest.Mock).mockRejectedValue(new Error('Error fetching folders'));
-
       const response = await request(app).get('/api/folders');
-
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ error: 'Internal Server Error' });
     });
@@ -74,29 +113,19 @@ describe('Folder Controller', () => {
   describe('getFolderByIdController', () => {
     it('should return the folder with the given ID', async () => {
       const mockFolder = { id: '1', name: 'Folder 1' };
-      (getFolderById as jest.Mock).mockResolvedValue(mockFolder);
-
-      const response = await request(app).get('/api/folders/1');
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockFolder);
-      expect(getFolderById).toHaveBeenCalledWith('1');
+      await testFolderByIdFetching('/api/folders/1', mockFolder, mockFolder);
     });
 
     it('should return an error if the folder is not found', async () => {
       (getFolderById as jest.Mock).mockResolvedValue(null);
-
       const response = await request(app).get('/api/folders/1');
-
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ error: 'Folder not found' });
     });
 
     it('should handle errors when fetching a folder by ID', async () => {
       (getFolderById as jest.Mock).mockRejectedValue(new Error('Error fetching folder'));
-
       const response = await request(app).get('/api/folders/1');
-
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ error: 'Internal Server Error' });
     });
@@ -105,35 +134,19 @@ describe('Folder Controller', () => {
   describe('updateFolderController', () => {
     it('should update the folder with the given ID', async () => {
       const mockFolder = { id: '1', name: 'Updated Folder' };
-      (updateFolder as jest.Mock).mockResolvedValue(mockFolder);
-
-      const response = await request(app)
-        .put('/api/folders/1')
-        .send({ name: 'Updated Folder' });
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockFolder);
-      expect(updateFolder).toHaveBeenCalledWith('1', 'Updated Folder');
+      await testFolderUpdating('/api/folders/1', { name: 'Updated Folder' }, mockFolder, mockFolder);
     });
 
     it('should return an error if the folder is not found', async () => {
       (updateFolder as jest.Mock).mockResolvedValue(null);
-
-      const response = await request(app)
-        .put('/api/folders/1')
-        .send({ name: 'Updated Folder' });
-
+      const response = await request(app).put('/api/folders/1').send({ name: 'Updated Folder' });
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ error: 'Folder not found' });
     });
 
     it('should handle errors when updating a folder', async () => {
       (updateFolder as jest.Mock).mockRejectedValue(new Error('Error updating folder'));
-
-      const response = await request(app)
-        .put('/api/folders/1')
-        .send({ name: 'Updated Folder' });
-
+      const response = await request(app).put('/api/folders/1').send({ name: 'Updated Folder' });
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ error: 'Internal Server Error' });
     });
@@ -142,29 +155,19 @@ describe('Folder Controller', () => {
   describe('deleteFolderController', () => {
     it('should delete the folder with the given ID', async () => {
       const mockFolder = { id: '1', name: 'Folder 1' };
-      (deleteFolder as jest.Mock).mockResolvedValue(mockFolder);
-
-      const response = await request(app).delete('/api/folders/1');
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual({ message: 'Folder deleted successfully' });
-      expect(deleteFolder).toHaveBeenCalledWith('1');
+      await testFolderDeletion('/api/folders/1', mockFolder, { message: 'Folder deleted successfully' });
     });
 
     it('should return an error if the folder is not found', async () => {
       (deleteFolder as jest.Mock).mockResolvedValue(null);
-
       const response = await request(app).delete('/api/folders/1');
-
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ error: 'Folder not found' });
     });
 
     it('should handle errors when deleting a folder', async () => {
       (deleteFolder as jest.Mock).mockRejectedValue(new Error('Error deleting folder'));
-
       const response = await request(app).delete('/api/folders/1');
-
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ error: 'Internal Server Error' });
     });
