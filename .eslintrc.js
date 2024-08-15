@@ -44,7 +44,7 @@ module.exports = {
         /***New Rules Active*/
         '@typescript-eslint/no-duplicate-enum-values': 'warn',
         'no-duplicate-imports': 'off',
-        '@typescript-eslint/no-duplicate-imports': 'warn',
+        '@typescript-eslint/no-duplicate-imports': 'off',
         '@typescript-eslint/no-require-imports': 'warn',
         '@typescript-eslint/no-useless-empty-export': 'warn',
         /***New turned off rules */
