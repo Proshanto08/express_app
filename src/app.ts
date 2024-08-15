@@ -5,6 +5,7 @@ import helloWorldRoutes from './routes/helloWorldRoutes';
 import rateLimiter from './middleware/rateLimitMiddleware';
 import folderRoutes from './routes/folderRoutes';
 import listRoutes from './routes/listRoutes';
+import contactRoutes from './routes/contactRoutes';
 
 const app = express();
 app.use(corsMiddleware);
@@ -30,5 +31,6 @@ app.get('/', (req: Request, res: Response) => {
 app.use('/api', helloWorldRoutes);
 app.use('/api', folderRoutes);
 app.use('/api', listRoutes);
+app.use('/api', contactRoutes);
 
 export default app;
