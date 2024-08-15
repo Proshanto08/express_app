@@ -4,9 +4,7 @@ import { createFolder, getAllFolders, getFolderById, updateFolder, deleteFolder 
 export const createFolderController = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name } = req.body;
-    if (!name) {
-      res.json({ error: 'Folder name is required' });
-    }
+
     const folder = await createFolder(name);
     res.json(folder);
   } catch (err) {
@@ -15,7 +13,7 @@ export const createFolderController = async (req: Request, res: Response): Promi
   }
 };
 
-export const getAllFoldersController = async (req: Request, res: Response): Promise<void> => {
+export const getAllFoldersController = async (_req: Request, res: Response): Promise<void> => {
   try {
     const folders = await getAllFolders();
     res.json(folders);
@@ -28,9 +26,12 @@ export const getAllFoldersController = async (req: Request, res: Response): Prom
 export const getFolderByIdController = async (req: Request, res: Response): Promise<void> => {
   try {
     const folder = await getFolderById(req.params.id);
+
     if (!folder) {
       res.json({ error: 'Folder not found' });
+      return;
     }
+
     res.json(folder);
   } catch (err) {
     console.error('Error fetching folder:', err);
@@ -41,13 +42,14 @@ export const getFolderByIdController = async (req: Request, res: Response): Prom
 export const updateFolderController = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name } = req.body;
-    if (!name) {
-      res.json({ error: 'Folder name is required' });
-    }
+
     const folder = await updateFolder(req.params.id, name);
+
     if (!folder) {
       res.json({ error: 'Folder not found' });
+      return;
     }
+
     res.json(folder);
   } catch (err) {
     console.error('Error updating folder:', err);
@@ -58,9 +60,12 @@ export const updateFolderController = async (req: Request, res: Response): Promi
 export const deleteFolderController = async (req: Request, res: Response): Promise<void> => {
   try {
     const folder = await deleteFolder(req.params.id);
+
     if (!folder) {
       res.json({ error: 'Folder not found' });
+      return;
     }
+
     res.json({ message: 'Folder deleted successfully' });
   } catch (err) {
     console.error('Error deleting folder:', err);
