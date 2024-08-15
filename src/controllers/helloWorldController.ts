@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
+import { getHelloMessage } from '../services/helloWorldService';
 
 export const getHelloWorld = (req: Request, res: Response): void => {
-  res.send('Hello World!');
+  const message = getHelloMessage();
+  res.send(message);
 };
