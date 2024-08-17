@@ -7,6 +7,7 @@ import listRoutes from './routes/listRoutes';
 import contactRoutes from './routes/contactRoutes';
 import timezoneRoutes from './routes/timezoneRoutes';
 import brevoFolderRoutes from './brevo/folders/brevoFolderRoutes';
+import brevoListRoutes from './brevo/lists/brevoListRoutes';
 
 const app = express();
 app.use(rateLimiter);
@@ -25,6 +26,8 @@ app.use('/api', folderRoutes);
 app.use('/api', listRoutes);
 app.use('/api', contactRoutes);
 app.use('/api/brevo', brevoFolderRoutes);
+app.use('/api/brevo', brevoListRoutes);
+
 
 
 export default app;
