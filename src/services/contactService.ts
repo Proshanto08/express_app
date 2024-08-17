@@ -2,7 +2,6 @@ import Contact from '../models/contactModel';
 import List from '../models/listModel';
 import { IContact } from '../models/contactModel';
 
- // Create the new contact
 export const createContact = async (firstName: string, lastName: string, email: string, sms: string, whatsapp: string , company: string, timezone: string, listId: string): Promise<IContact> => {
   const contact = new Contact({ firstName, lastName, email, sms, whatsapp, company, timezone, listId });
   await contact.save();

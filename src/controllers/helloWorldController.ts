@@ -5,5 +5,3 @@ export const getHelloWorld = (req: Request, res: Response): void => {
   const message = getHelloMessage();
   res.send(message);
 };
-
-
