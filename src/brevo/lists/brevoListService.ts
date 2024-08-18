@@ -1,7 +1,7 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 
 const API_URL = 'https://api.brevo.com/v3';
-const API_KEY = process.env.BREVO_API_KEY; 
+const API_KEY = process.env.BREVO_API_KEY;
 
 const brevoClient = axios.create({
   baseURL: API_URL,
@@ -11,7 +11,13 @@ const brevoClient = axios.create({
   },
 });
 
-export const createList = async (name: string, folderId: number) => {
+interface ApiResponse {
+  status: number;
+  data?: any;
+  message?: string;
+}
+
+export const createList = async (name: string, folderId: number): Promise<ApiResponse> => {
   try {
     const response = await brevoClient.post('/contacts/lists', { name, folderId });
     return { status: response.status, data: response.data };
@@ -23,8 +29,7 @@ export const createList = async (name: string, folderId: number) => {
   }
 };
 
-
-export const getLists = async () => {
+export const getLists = async (): Promise<ApiResponse> => {
   try {
     const response = await brevoClient.get('/contacts/lists');
     return { status: response.status, data: response.data };
@@ -36,8 +41,7 @@ export const getLists = async () => {
   }
 };
 
-
-export const getListById = async (id: number) => {
+export const getListById = async (id: number): Promise<ApiResponse> => {
   try {
     const response = await brevoClient.get(`/contacts/lists/${id}`);
     return { status: response.status, data: response.data };
@@ -49,7 +53,7 @@ export const getListById = async (id: number) => {
   }
 };
 
-export const updateList = async (id: number, name: string) => {
+export const updateList = async (id: number, name: string): Promise<ApiResponse> => {
   try {
     const response = await brevoClient.put(`/contacts/lists/${id}`, { name });
     return { status: response.status };
@@ -61,8 +65,7 @@ export const updateList = async (id: number, name: string) => {
   }
 };
 
-
-export const deleteList = async (id: number) => {
+export const deleteList = async (id: number): Promise<ApiResponse> => {
   try {
     const response = await brevoClient.delete(`/contacts/lists/${id}`);
     return { status: response.status };
