@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { createFolder, getFolders,getFolderById, updateFolder, deleteFolder, getListsInFolder } from './brevoFolderService';
+import { createFolder, getFolders, getFolderById, updateFolder, deleteFolder, getListsInFolder } from './brevoFolderService';
 
-export const createFolderController = async (req: Request, res: Response) => {
+export const createFolderController = async (req: Request, res: Response): Promise<void> => {
   const { name } = req.body;
   const result = await createFolder(name);
 
@@ -14,7 +14,7 @@ export const createFolderController = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllFoldersController = async (_req: Request, res: Response) => {
+export const getAllFoldersController = async (_req: Request, res: Response): Promise<void> => {
   const result = await getFolders();
 
   if (result.status === 200) {
@@ -26,8 +26,7 @@ export const getAllFoldersController = async (_req: Request, res: Response) => {
   }
 };
 
-
-export const getFolderByIdController = async (req: Request, res: Response) => {
+export const getFolderByIdController = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   const result = await getFolderById(Number(id));
 
@@ -40,7 +39,7 @@ export const getFolderByIdController = async (req: Request, res: Response) => {
   }
 };
 
-export const updateFolderController = async (req: Request, res: Response) => {
+export const updateFolderController = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   const { name } = req.body;
   const result = await updateFolder(Number(id), name);
@@ -54,7 +53,7 @@ export const updateFolderController = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteFolderController = async (req: Request, res: Response) => {
+export const deleteFolderController = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   const result = await deleteFolder(Number(id));
 
@@ -67,8 +66,7 @@ export const deleteFolderController = async (req: Request, res: Response) => {
   }
 };
 
-
-export const getListsInFolderController = async (req: Request, res: Response) => {
+export const getListsInFolderController = async (req: Request, res: Response): Promise<void> => {
   const { folderId } = req.params;
   const result = await getListsInFolder(Number(folderId));
 
