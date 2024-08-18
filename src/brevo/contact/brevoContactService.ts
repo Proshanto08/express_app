@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-// Define a type for the attributes if you know the structure
-interface ContactAttributes {
-  [key: string]: any; // Replace 'any' with more specific types if possible
+
+interface IContactAttributes {
+  [key: string]: any; 
 }
 
-interface ApiResponse<T = any> {
+interface IApiResponse<T = any> {
   status: number;
   data?: T;
   message?: string;
@@ -38,9 +38,9 @@ export const createContact = async (
   SMS?: string, 
   whatsapp?: string, 
   landlineNumber?: string, 
-  attributes?: ContactAttributes, 
+  attributes?: IContactAttributes, 
   listIds?: number[]
-): Promise<ApiResponse> => {
+): Promise<IApiResponse> => {
   try {
     if (!email && !extId && !SMS && !whatsapp && !landlineNumber) {
       throw new Error('Please provide at least one contact identifier value (email, ext_id, SMS, WHATSAPP, LANDLINE_NUMBER, EXT_ID)');
@@ -72,7 +72,7 @@ export const createContact = async (
   }
 };
 
-export const getAllContacts = async (): Promise<ApiResponse> => {
+export const getAllContacts = async (): Promise<IApiResponse> => {
   try {
     const response = await brevoClient.get('/contacts');
     return { status: response.status, data: response.data };
@@ -88,7 +88,7 @@ export const getAllContacts = async (): Promise<ApiResponse> => {
   }
 };
 
-export const getContact = async (identifier: string): Promise<ApiResponse> => {
+export const getContact = async (identifier: string): Promise<IApiResponse> => {
   try {
     const response = await brevoClient.get(`/contacts/${identifier}`);
     return { status: response.status, data: response.data };
@@ -106,9 +106,9 @@ export const getContact = async (identifier: string): Promise<ApiResponse> => {
 
 export const updateContact = async (
   identifier: string, 
-  attributes?: ContactAttributes, 
+  attributes?: IContactAttributes, 
   listIds?: number[]
-): Promise<ApiResponse> => {
+): Promise<IApiResponse> => {
   try {
     if (listIds && listIds.length > 0) {
       for (const listId of listIds) {
@@ -136,7 +136,7 @@ export const updateContact = async (
   }
 };
 
-export const deleteContact = async (identifier: string): Promise<ApiResponse> => {
+export const deleteContact = async (identifier: string): Promise<IApiResponse> => {
   try {
     const response = await brevoClient.delete(`/contacts/${identifier}`);
     return { status: response.status };

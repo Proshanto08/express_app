@@ -11,13 +11,13 @@ const brevoClient = axios.create({
   },
 });
 
-interface ApiResponse {
+interface IApiResponse  {
   status: number;
   data?: any;
   message?: string;
 }
 
-export const createList = async (name: string, folderId: number): Promise<ApiResponse> => {
+export const createList = async (name: string, folderId: number): Promise<IApiResponse> => {
   try {
     const response = await brevoClient.post('/contacts/lists', { name, folderId });
     return { status: response.status, data: response.data };
@@ -29,7 +29,7 @@ export const createList = async (name: string, folderId: number): Promise<ApiRes
   }
 };
 
-export const getLists = async (): Promise<ApiResponse> => {
+export const getLists = async (): Promise<IApiResponse> => {
   try {
     const response = await brevoClient.get('/contacts/lists');
     return { status: response.status, data: response.data };
@@ -41,7 +41,7 @@ export const getLists = async (): Promise<ApiResponse> => {
   }
 };
 
-export const getListById = async (id: number): Promise<ApiResponse> => {
+export const getListById = async (id: number): Promise<IApiResponse> => {
   try {
     const response = await brevoClient.get(`/contacts/lists/${id}`);
     return { status: response.status, data: response.data };
@@ -53,7 +53,7 @@ export const getListById = async (id: number): Promise<ApiResponse> => {
   }
 };
 
-export const updateList = async (id: number, name: string): Promise<ApiResponse> => {
+export const updateList = async (id: number, name: string): Promise<IApiResponse> => {
   try {
     const response = await brevoClient.put(`/contacts/lists/${id}`, { name });
     return { status: response.status };
@@ -65,7 +65,7 @@ export const updateList = async (id: number, name: string): Promise<ApiResponse>
   }
 };
 
-export const deleteList = async (id: number): Promise<ApiResponse> => {
+export const deleteList = async (id: number): Promise<IApiResponse> => {
   try {
     const response = await brevoClient.delete(`/contacts/lists/${id}`);
     return { status: response.status };

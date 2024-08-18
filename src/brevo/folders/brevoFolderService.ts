@@ -11,13 +11,13 @@ const brevoClient = axios.create({
   },
 });
 
-interface BrevoResponse {
+interface IApiResponse {
   status: number;
   data?: any;
   message?: string;
 }
 
-export const createFolder = async (name: string): Promise<BrevoResponse> => {
+export const createFolder = async (name: string): Promise<IApiResponse> => {
   try {
     const response: AxiosResponse = await brevoClient.post('/contacts/folders', { name });
     return { status: response.status, data: response.data };
@@ -29,7 +29,7 @@ export const createFolder = async (name: string): Promise<BrevoResponse> => {
   }
 };
 
-export const getFolders = async (): Promise<BrevoResponse> => {
+export const getFolders = async (): Promise<IApiResponse> => {
   try {
     const response: AxiosResponse = await brevoClient.get('/contacts/folders');
     return { status: response.status, data: response.data };
@@ -41,7 +41,7 @@ export const getFolders = async (): Promise<BrevoResponse> => {
   }
 };
 
-export const getFolderById = async (id: number): Promise<BrevoResponse> => {
+export const getFolderById = async (id: number): Promise<IApiResponse> => {
   try {
     const response: AxiosResponse = await brevoClient.get(`/contacts/folders/${id}`);
     return { status: response.status, data: response.data };
@@ -53,7 +53,7 @@ export const getFolderById = async (id: number): Promise<BrevoResponse> => {
   }
 };
 
-export const updateFolder = async (id: number, name: string): Promise<BrevoResponse> => {
+export const updateFolder = async (id: number, name: string): Promise<IApiResponse> => {
   try {
     const response: AxiosResponse = await brevoClient.put(`/contacts/folders/${id}`, { name });
     return { status: response.status, data: response.data };
@@ -65,7 +65,7 @@ export const updateFolder = async (id: number, name: string): Promise<BrevoRespo
   }
 };
 
-export const deleteFolder = async (id: number): Promise<BrevoResponse> => {
+export const deleteFolder = async (id: number): Promise<IApiResponse> => {
   try {
     const response: AxiosResponse = await brevoClient.delete(`/contacts/folders/${id}`);
     return { status: response.status, data: response.data };
@@ -77,7 +77,7 @@ export const deleteFolder = async (id: number): Promise<BrevoResponse> => {
   }
 };
 
-export const getListsInFolder = async (folderId: number): Promise<BrevoResponse> => {
+export const getListsInFolder = async (folderId: number): Promise<IApiResponse> => {
   try {
     const response: AxiosResponse = await brevoClient.get(`/contacts/folders/${folderId}/lists`);
     return { status: response.status, data: response.data };
