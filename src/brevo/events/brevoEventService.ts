@@ -1,6 +1,4 @@
-// brevoEventService.ts
-
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
 const brevoClient = axios.create({
   baseURL: 'https://api.brevo.com/v3',
@@ -10,43 +8,53 @@ const brevoClient = axios.create({
   },
 });
 
-interface EventIdentifiers {
+interface IEventIdentifiers {
   email_id?: string;
   ext_id?: string;
 }
 
-interface ContactProperties {
+interface IContactProperties {
   [key: string]: any;
 }
 
-interface EventProperties {
+interface IEventProperties {
   [key: string]: any;
 }
 
-interface CreateEventParams {
+interface ICreateEventParams {
   event_name: string;
   event_date?: string;
-  identifiers: EventIdentifiers;
-  contact_properties?: ContactProperties;
-  event_properties?: EventProperties;
+  identifiers: IEventIdentifiers;
+  contact_properties?: IContactProperties;
+  event_properties?: IEventProperties;
 }
 
-export const createEvent = async (params: CreateEventParams) => {
+interface ICreateEventResponse {
+  status: number;
+  message: string;
+  errorDetails?: any;
+}
+
+export const createEvent = async (params: ICreateEventParams): Promise<ICreateEventResponse> => {
   try {
-    const response = await brevoClient.post('/events', params);
-    
+    const response: AxiosResponse = await brevoClient.post('/events', params);
+
     return {
       status: 200,
       message: 'Event successfully posted',
     };
   } catch (error) {
-    if (axios.isAxiosError(error)) {
+    if (axios.isAxiosError(error) && error.response) {
       return {
-        status: error.response?.status || 500,
-        message: error.response?.data?.message || 'Unknown error',
-        errorDetails: error.response?.data || {},
+        status: error.response.status,
+        message: error.response.data.message || 'Unknown error occurred',
+        errorDetails: error.response.data,
       };
     }
-    return { status: 500, message: 'Unknown error' };
+
+    return {
+      status: 500,
+      message: 'An unexpected error occurred',
+    };
   }
 };
