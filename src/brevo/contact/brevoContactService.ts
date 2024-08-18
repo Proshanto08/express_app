@@ -1,15 +1,13 @@
 import axios from 'axios';
 
-
 interface IContactAttributes {
   [key: string]: any; 
 }
 
-interface IApiResponse<T = any> {
+interface IApiResponse {
   status: number;
-  data?: T;
+  data?: any;
   message?: string;
-  errorDetails?: any;
 }
 
 const brevoClient = axios.create({
@@ -26,9 +24,9 @@ export const checkListExists = async (listId: number): Promise<boolean> => {
     return response.status === 200;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 404) {
-      return false; // List does not exist
+      return false; 
     }
-    throw error; // Rethrow other errors
+    throw error; 
   }
 };
 
@@ -65,7 +63,6 @@ export const createContact = async (
       return {
         status: error.response?.status || 500,
         message: error.response?.data?.message || 'Unknown error',
-        errorDetails: error.response?.data || {},
       };
     }
     return { status: 500, message: 'Unknown error' };
@@ -81,7 +78,6 @@ export const getAllContacts = async (): Promise<IApiResponse> => {
       return {
         status: error.response?.status || 500,
         message: error.response?.data?.message || 'Unknown error',
-        errorDetails: error.response?.data || {},
       };
     }
     return { status: 500, message: 'Unknown error' };
@@ -97,7 +93,6 @@ export const getContact = async (identifier: string): Promise<IApiResponse> => {
       return {
         status: error.response?.status || 500,
         message: error.response?.data?.message || 'Unknown error',
-        errorDetails: error.response?.data || {},
       };
     }
     return { status: 500, message: 'Unknown error' };
@@ -123,13 +118,15 @@ export const updateContact = async (
     }
 
     const response = await brevoClient.put(`/contacts/${identifier}`, { attributes, listIds });
-    return { status: response.status, data: response.data };
+    return {
+      status: 204,
+      message:  'Contact successfully updated'
+    };
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
         status: error.response?.status || 500,
         message: error.response?.data?.message || 'Unknown error',
-        errorDetails: error.response?.data || {},
       };
     }
     return { status: 500, message: 'Unknown error' };
@@ -139,13 +136,15 @@ export const updateContact = async (
 export const deleteContact = async (identifier: string): Promise<IApiResponse> => {
   try {
     const response = await brevoClient.delete(`/contacts/${identifier}`);
-    return { status: response.status };
+    return {
+      status: 204,
+      message:  'Contact successfully updated'
+    };
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return {
         status: error.response?.status || 500,
         message: error.response?.data?.message || 'Unknown error',
-        errorDetails: error.response?.data || {},
       };
     }
     return { status: 500, message: 'Unknown error' };

@@ -20,7 +20,7 @@ export const authToken = async (req: Request, res: Response, next: NextFunction)
 
     next();
   } catch (err) {
-      console.error('Token verification failed:', err);
-      res.status(401).json({ message: 'Token verification failed' });
+    console.error('Token verification failed:', err);
+    res.status(401).json({ message: 'Token verification failed' });
   }
 };

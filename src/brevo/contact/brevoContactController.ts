@@ -40,7 +40,7 @@ export const updateContactController = async (req: Request, res: Response): Prom
   try {
     const result = await updateContact(identifier, attributes, listIds);
 
-    if (result.status === 200) {
+    if (result.status === 204) {
       return res.status(200).json({ message: 'Contact successfully updated', data: result.data });
     } else if (result.status === 400) {
       return res.status(400).json({ error: 'Bad request', message: result.message });
@@ -58,7 +58,7 @@ export const deleteContactController = async (req: Request, res: Response): Prom
   const result = await deleteContact(identifier);
 
   if (result.status === 204) {
-    return res.status(204).json({ message: 'Contact successfully deleted' });
+    return res.status(200).json({ message: 'Contact successfully deleted' });
   } else if (result.status === 400) {
     return res.status(400).json({ error: 'Bad request', message: result.message });
   } else {

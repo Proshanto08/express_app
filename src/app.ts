@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(corsMiddleware);
 
 app.get('/', (req: Request, res: Response) => {
-  res.send('Hello! This is a Express App. And app is running on port 3000');
+  res.send('Hello 6sense. And app is running on port 3000');
 });
 
 
