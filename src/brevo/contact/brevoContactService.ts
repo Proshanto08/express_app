@@ -1,5 +1,17 @@
 import axios from 'axios';
 
+// Define a type for the attributes if you know the structure
+interface ContactAttributes {
+  [key: string]: any; // Replace 'any' with more specific types if possible
+}
+
+interface ApiResponse<T = any> {
+  status: number;
+  data?: T;
+  message?: string;
+  errorDetails?: any;
+}
+
 const brevoClient = axios.create({
   baseURL: 'https://api.brevo.com/v3',
   headers: {
@@ -8,7 +20,7 @@ const brevoClient = axios.create({
   },
 });
 
-export const checkListExists = async (listId: number) => {
+export const checkListExists = async (listId: number): Promise<boolean> => {
   try {
     const response = await brevoClient.get(`/contacts/lists/${listId}`);
     return response.status === 200;
@@ -20,16 +32,15 @@ export const checkListExists = async (listId: number) => {
   }
 };
 
-
 export const createContact = async (
   email?: string, 
   extId?: string, 
   SMS?: string, 
   whatsapp?: string, 
   landlineNumber?: string, 
-  attributes?: any, 
+  attributes?: ContactAttributes, 
   listIds?: number[]
-) => {
+): Promise<ApiResponse> => {
   try {
     if (!email && !extId && !SMS && !whatsapp && !landlineNumber) {
       throw new Error('Please provide at least one contact identifier value (email, ext_id, SMS, WHATSAPP, LANDLINE_NUMBER, EXT_ID)');
@@ -61,9 +72,7 @@ export const createContact = async (
   }
 };
 
-
-
-export const getAllContacts = async () => {
+export const getAllContacts = async (): Promise<ApiResponse> => {
   try {
     const response = await brevoClient.get('/contacts');
     return { status: response.status, data: response.data };
@@ -79,7 +88,7 @@ export const getAllContacts = async () => {
   }
 };
 
-export const getContact = async (identifier: string) => {
+export const getContact = async (identifier: string): Promise<ApiResponse> => {
   try {
     const response = await brevoClient.get(`/contacts/${identifier}`);
     return { status: response.status, data: response.data };
@@ -97,9 +106,9 @@ export const getContact = async (identifier: string) => {
 
 export const updateContact = async (
   identifier: string, 
-  attributes?: any, 
+  attributes?: ContactAttributes, 
   listIds?: number[]
-) => {
+): Promise<ApiResponse> => {
   try {
     if (listIds && listIds.length > 0) {
       for (const listId of listIds) {
@@ -127,9 +136,7 @@ export const updateContact = async (
   }
 };
 
-
-
-export const deleteContact = async (identifier: string) => {
+export const deleteContact = async (identifier: string): Promise<ApiResponse> => {
   try {
     const response = await brevoClient.delete(`/contacts/${identifier}`);
     return { status: response.status };
@@ -144,6 +151,3 @@ export const deleteContact = async (identifier: string) => {
     return { status: 500, message: 'Unknown error' };
   }
 };
-
-
-
