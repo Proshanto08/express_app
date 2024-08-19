@@ -1,5 +1,11 @@
 import { Request, Response } from 'express';
-import { createFolder, getAllFolders, getFolderById, updateFolder, deleteFolder } from '../services/folderService';
+import {
+  createFolder,
+  getAllFolders,
+  getFolderById,
+  updateFolder,
+  deleteFolder
+} from '../services/folderService';
 
 export const createFolderController = async (req: Request, res: Response): Promise<void> => {
   try {

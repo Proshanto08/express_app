@@ -1,9 +1,9 @@
 import request from 'supertest';
 import express from 'express';
-import { createFolderController, getAllFoldersController, getFolderByIdController, updateFolderController, deleteFolderController } from '../src/controllers/folderController';
-import { createFolder, getAllFolders, getFolderById, updateFolder, deleteFolder } from '../src/services/folderService';
+import { createFolderController, getAllFoldersController, getFolderByIdController, updateFolderController, deleteFolderController } from '../controllers/folderController';
+import { createFolder, getAllFolders, getFolderById, updateFolder, deleteFolder } from '../services/folderService';
 
-jest.mock('../src/services/folderService');
+jest.mock('../services/folderService');
 
 const app = express();
 app.use(express.json());
@@ -20,17 +20,17 @@ describe('Folder Controller', () => {
   });
 
   it('should create a folder', async () => {
-    const mockFolder = { id: '1', name: 'Test Folder' };
+    const mockFolder = { id: '1', name: '6sense' };
     (createFolder as jest.Mock).mockResolvedValue(mockFolder);
 
-    const response = await request(app).post('/folders').send({ name: 'Test Folder' });
+    const response = await request(app).post('/folders').send({ name: '6sense' });
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual(mockFolder);
   });
 
   it('should get all folders', async () => {
-    const mockFolders = [{ id: '1', name: 'Test Folder' }];
+    const mockFolders = [{ id: '1', name: '6sense' }];
     (getAllFolders as jest.Mock).mockResolvedValue(mockFolders);
 
     const response = await request(app).get('/folders');
@@ -40,7 +40,7 @@ describe('Folder Controller', () => {
   });
 
   it('should get a folder by ID', async () => {
-    const mockFolder = { id: '1', name: 'Test Folder' };
+    const mockFolder = { id: '1', name: '6sense' };
     (getFolderById as jest.Mock).mockResolvedValue(mockFolder);
 
     const response = await request(app).get('/folders/1');
@@ -59,7 +59,7 @@ describe('Folder Controller', () => {
   });
 
   it('should update a folder', async () => {
-    const mockFolder = { id: '1', name: 'Updated Folder' };
+    const mockFolder = { id: '1', name: 'Updated 6sense' };
     (updateFolder as jest.Mock).mockResolvedValue(mockFolder);
 
     const response = await request(app).put('/folders/1').send({ name: 'Updated Folder' });
@@ -78,7 +78,7 @@ describe('Folder Controller', () => {
   });
 
   it('should delete a folder', async () => {
-    const mockFolder = { id: '1', name: 'Test Folder' };
+    const mockFolder = { id: '1', name: '6sense' };
     (deleteFolder as jest.Mock).mockResolvedValue(mockFolder);
 
     const response = await request(app).delete('/folders/1');

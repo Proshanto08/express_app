@@ -6,22 +6,20 @@ import {
   getListByIdController, 
   updateListController, 
   deleteListController 
-} from '../src/controllers/listController';
+} from '../controllers/listController';
 import { 
   createList, 
   getAllLists, 
   getListById, 
   updateList, 
   deleteList 
-} from '../src/services/listService';
+} from '../services/listService';
 
-// Mock the listService functions
-jest.mock('../src/services/listService');
+jest.mock('../services/listService');
 
 const app = express();
 app.use(express.json());
 
-// Define routes for testing
 app.post('/lists', createListController);
 app.get('/lists', getAllListsController);
 app.get('/lists/:id', getListByIdController);
@@ -34,17 +32,17 @@ describe('List Controller', () => {
   });
 
   it('should create a list', async () => {
-    const mockList = { id: '1', name: 'Test List', folderId: 'folder1' };
+    const mockList = { id: '1', name: 'Email List', folderId: '6sense' };
     (createList as jest.Mock).mockResolvedValue(mockList);
 
-    const response = await request(app).post('/lists').send({ name: 'Test List', folderId: 'folder1' });
+    const response = await request(app).post('/lists').send({ name: 'Email List', folderId: '6sense' });
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual(mockList);
   });
 
   it('should get all lists', async () => {
-    const mockLists = [{ id: '1', name: 'Test List', folderId: 'folder1' }];
+    const mockLists = [{ id: '1', name: 'Email List', folderId: '6sense' }];
     (getAllLists as jest.Mock).mockResolvedValue(mockLists);
 
     const response = await request(app).get('/lists');
@@ -54,7 +52,7 @@ describe('List Controller', () => {
   });
 
   it('should get a list by ID', async () => {
-    const mockList = { id: '1', name: 'Test List', folderId: 'folder1' };
+    const mockList = { id: '1', name: 'Email List', folderId: '6sense' };
     (getListById as jest.Mock).mockResolvedValue(mockList);
 
     const response = await request(app).get('/lists/1');
@@ -73,7 +71,7 @@ describe('List Controller', () => {
   });
 
   it('should update a list', async () => {
-    const mockList = { id: '1', name: 'Updated List', folderId: 'folder1' };
+    const mockList = { id: '1', name: 'Updated List', folderId: '6sense' };
     (updateList as jest.Mock).mockResolvedValue(mockList);
 
     const response = await request(app).put('/lists/1').send({ name: 'Updated List' });
@@ -92,7 +90,7 @@ describe('List Controller', () => {
   });
 
   it('should delete a list', async () => {
-    const mockList = { id: '1', name: 'Test List', folderId: 'folder1' };
+    const mockList = { id: '1', name: 'Email List', folderId: '6sense' };
     (deleteList as jest.Mock).mockResolvedValue(mockList);
 
     const response = await request(app).delete('/lists/1');
