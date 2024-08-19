@@ -37,7 +37,7 @@ interface ICreateEventResponse {
 
 export const createEvent = async (params: ICreateEventParams): Promise<ICreateEventResponse> => {
   try {
-    const response: AxiosResponse = await brevoClient.post('/events', params);
+    await brevoClient.post('/events', params);
 
     return {
       status: 200,
