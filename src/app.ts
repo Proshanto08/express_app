@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import bodyParser from 'body-parser';
 import corsMiddleware from './middleware/corsMiddleware';
 import helloWorldRoutes from './routes/helloWorldRoutes';
 import rateLimiter from './middleware/rateLimitMiddleware';
@@ -10,12 +11,11 @@ import brevoFolderRoutes from './brevo/folders/brevoFolderRoutes';
 import brevoListRoutes from './brevo/lists/brevoListRoutes';
 import brevoContactRoutes from './brevo/contact/brevoContactRoutes';
 import brevoEventRoutes from './brevo/events/brevoEventRoutes';
+import emailRoutes from './brevo/email/brevoEmailRoutes';
 
 const app = express();
 app.use(rateLimiter);
-app.use(express.json());
-app.use(corsMiddleware);
-
+app.use(bodyParser.json());
 app.use(corsMiddleware);
 
 app.get('/', (req: Request, res: Response) => {
@@ -32,6 +32,8 @@ app.use('/api/brevo', brevoFolderRoutes);
 app.use('/api/brevo', brevoListRoutes);
 app.use('/api/brevo', brevoContactRoutes);
 app.use('/api/brevo', brevoEventRoutes);
+app.use('/api', emailRoutes)
+
 
 
 
