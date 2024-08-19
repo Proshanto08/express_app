@@ -17,13 +17,13 @@ export const handleContactFormSubmission = async (req: Request, res: Response): 
 //     html: `<p>${message}</p>`,
 //   };
 
-  const brevoOptions: any = {
-    subject: `New Contact Form Submission from ${name}`,
-    htmlContent: `<html><body><h1>${message}</h1></body></html>`,
-    sender: { name: 'Contact Form', email: process.env.PERSONAL_EMAIL || '' },
-    to: [{ email: process.env.PERSONAL_EMAIL || '', name }],
-    replyTo: { email, name },
-  };
+const brevoOptions = {
+  subject: `New Contact Form Submission from ${name}`,
+  htmlContent: `<html><body><h1>${message}</h1></body></html>`,
+  sender: { name: 'Contact Form', email: process.env.PERSONAL_EMAIL || '' },
+  to: [{ email: process.env.PERSONAL_EMAIL || '', name }],
+  replyTo: { email, name },
+};
 
   try {
   
@@ -33,8 +33,11 @@ export const handleContactFormSubmission = async (req: Request, res: Response): 
     // }
 
     // Send email using Brevo
-    
-    await sendBrevoEmail(brevoOptions);
+
+    const brevoResponse = await sendBrevoEmail(brevoOptions);
+    if (brevoResponse.status !== 200) {
+      return res.status(500).json({ success: false, message: 'Failed to send Brevo email' });
+    }
 
     return res.status(200).json({ success: true, message: 'Form submitted successfully' });
   } catch (error) {

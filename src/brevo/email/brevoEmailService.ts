@@ -8,7 +8,27 @@ interface IApiResponse {
   message?: string;
 }
 
-export const sendBrevoEmail = async (emailData: any): Promise<IApiResponse> => {
+interface IEmailRecipient {
+  email: string;
+  name?: string;
+}
+
+interface IEmailSender {
+  email: string;
+  name?: string;
+}
+
+interface IEmailData {
+  subject: string;
+  htmlContent: string;
+  sender: IEmailSender;
+  to: IEmailRecipient[];
+  replyTo?: IEmailSender;
+  headers?: { [key: string]: string };
+  params?: { [key: string]: any };
+}
+
+export const sendBrevoEmail = async (emailData: IEmailData): Promise<IApiResponse> => {
   try {
     const response = await axios.post('https://api.brevo.com/v3/smtp/email', emailData, {
       headers: {

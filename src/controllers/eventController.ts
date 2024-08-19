@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { createEvent, getEvents } from '../services/eventService';
 import { IEventProperties } from '../models/eventModel';
 
-interface CreateEventRequest extends Request {
+interface ICreateEventRequest extends Request {
   body: {
     name: string;
     properties: IEventProperties;
@@ -10,7 +10,7 @@ interface CreateEventRequest extends Request {
 }
 
 
-export const createEventController = async (req: CreateEventRequest, res: Response): Promise<void> => {
+export const createEventController = async (req: ICreateEventRequest, res: Response): Promise<void> => {
   try {
     const { name, properties } = req.body;
     const event = await createEvent(name, properties);
