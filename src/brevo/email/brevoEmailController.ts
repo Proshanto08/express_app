@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 // import { sendEmail } from '../services/emailService';
-import { sendBrevoEmail } from './brevoService';
+import { sendBrevoEmail } from './brevoEmailService';
 
 export const handleContactFormSubmission = async (req: Request, res: Response): Promise<Response> => {
   const { name, email, message } = req.body;
@@ -33,10 +33,8 @@ export const handleContactFormSubmission = async (req: Request, res: Response): 
     // }
 
     // Send email using Brevo
-    const brevoResponse = await sendBrevoEmail(brevoOptions);
-    if (!brevoResponse.success) {
-      return res.status(500).json({ success: false, message: 'Failed to send Brevo email' });
-    }
+    
+    await sendBrevoEmail(brevoOptions);
 
     return res.status(200).json({ success: true, message: 'Form submitted successfully' });
   } catch (error) {

@@ -117,7 +117,7 @@ export const updateContact = async (
       }
     }
 
-    const response = await brevoClient.put(`/contacts/${identifier}`, { attributes, listIds });
+    await brevoClient.put(`/contacts/${identifier}`, { attributes, listIds });
     return {
       status: 204,
       message:  'Contact successfully updated'
@@ -135,7 +135,7 @@ export const updateContact = async (
 
 export const deleteContact = async (identifier: string): Promise<IApiResponse> => {
   try {
-    const response = await brevoClient.delete(`/contacts/${identifier}`);
+    await brevoClient.delete(`/contacts/${identifier}`);
     return {
       status: 204,
       message:  'Contact successfully updated'
