@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 
 const brevoClient = axios.create({
   baseURL: 'https://api.brevo.com/v3',
