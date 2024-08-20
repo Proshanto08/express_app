@@ -1,19 +1,22 @@
 import { Request, Response } from 'express';
 import { createEvent } from './brevoEventService';
 
-export const createEventController = async (req: Request, res: Response): Promise<Response> => {
+export const handleCreateEvent = async (req: Request, res: Response): Promise<void> => {
   const { event_name, event_date, identifiers, contact_properties, event_properties } = req.body;
 
-  try {
-    const result = await createEvent({ event_name, event_date, identifiers, contact_properties, event_properties });
-
-    return res.status(result.status).json({
-      message: result.message,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      error: 'Internal server error',
-      message: 'An unexpected error occurred',
-    });
+  if (!event_name || !identifiers) {
+    res.status(400).json({ status: 400, message: 'Event name and identifiers are required' });
+    return;
   }
+
+  const eventOptions = {
+    event_name,
+    event_date,
+    identifiers,
+    contact_properties,
+    event_properties,
+  };
+
+  const result = await createEvent(eventOptions);
+  res.status(result.status).json(result);
 };

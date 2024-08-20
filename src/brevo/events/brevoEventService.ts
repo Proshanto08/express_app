@@ -1,60 +1,50 @@
-import axios from 'axios';
+import { initializeBrevoClient } from '../../config/brevoConfig';
 
-const brevoClient = axios.create({
-  baseURL: 'https://api.brevo.com/v3',
-  headers: {
-    'api-key': process.env.BREVO_API_KEY || '',
-    'Content-Type': 'application/json',
-  },
-});
+interface IApiResponse {
+  status: number;
+  errorCode?: string;
+  message?: string;
+  data: any;
+}
 
-interface IEventIdentifiers {
+interface Identifiers {
   email_id?: string;
   ext_id?: string;
 }
 
-interface IContactProperties {
+interface ContactProperties {
   [key: string]: any;
 }
 
-interface IEventProperties {
+interface EventProperties {
   [key: string]: any;
 }
 
-interface ICreateEventParams {
+interface CreateEventOptions {
   event_name: string;
   event_date?: string;
-  identifiers: IEventIdentifiers;
-  contact_properties?: IContactProperties;
-  event_properties?: IEventProperties;
+  identifiers: Identifiers;
+  contact_properties?: ContactProperties;
+  event_properties?: EventProperties;
 }
 
-interface ICreateEventResponse {
-  status: number;
-  message: string;
-  errorDetails?: any;
-}
+export const createEvent = async (eventOptions: CreateEventOptions): Promise<IApiResponse> => {
+  const apiInstance = initializeBrevoClient();
 
-export const createEvent = async (params: ICreateEventParams): Promise<ICreateEventResponse> => {
   try {
-    await brevoClient.post('/events', params);
-
+    const response = await apiInstance.post('/events', eventOptions);
     return {
-      status: 200,
-      message: 'Event successfully posted',
+      status: 204,
+      message: 'Event created successfully',
+      data: response.data,
     };
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      return {
-        status: error.response.status,
-        message: error.response.data.message || 'Unknown error occurred',
-        errorDetails: error.response.data,
-      };
-    }
-
+  } catch (error: any) {
+    const errorResponse = error.response?.data || {};
     return {
-      status: 500,
-      message: 'An unexpected error occurred',
+      status: error.response?.status || 500,
+      errorCode: errorResponse.errorCode,
+      message: errorResponse.message || 'An error occurred',
+      data: {},
     };
   }
 };

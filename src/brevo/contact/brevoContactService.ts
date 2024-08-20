@@ -1,5 +1,4 @@
 import { initializeBrevoClient } from '../../config/brevoConfig';
-import { CreateContact, UpdateContact } from 'sib-api-v3-sdk';
 
 interface IApiResponse {
   status: number;
@@ -16,18 +15,20 @@ export const getAllContacts = async (
   const apiInstance = initializeBrevoClient();
 
   try {
-    const response = await apiInstance.getContacts(limit, offset, sort );
+    const response = await apiInstance.get('/contacts', {
+      params: { limit, offset, sort },
+    });
     return {
       status: 200,
-      data: response,
+      data: response.data,
       message: 'Contacts retrieved successfully',
     };
   } catch (error: any) {
-    const errorResponse = JSON.parse(error.response.text);
+    const errorResponse = error.response?.data || {};
     return {
-      status: error.status,
+      status: error.response?.status || 500,
       errorCode: errorResponse.code,
-      message: errorResponse.message,
+      message: errorResponse.message || 'An error occurred',
       data: {},
     };
   }
@@ -42,29 +43,27 @@ export const createContact = async (
   const apiInstance = initializeBrevoClient();
 
   try {
-    const contact = new CreateContact();
-    contact.email = email;
-    contact.attributes = attributes;
-    if (listIds) contact.listIds = listIds;
-    if (updateEnabled) contact.updateEnabled = updateEnabled;
-
-    const response = await apiInstance.createContact(contact);
+    const response = await apiInstance.post('/contacts', {
+      email,
+      attributes,
+      listIds,
+      updateEnabled,
+    });
     return {
       status: 201,
-      data: response,
+      data: response.data,
       message: 'Contact successfully created',
     };
   } catch (error: any) {
-    const errorResponse = JSON.parse(error.response.text);
+    const errorResponse = error.response?.data || {};
     return {
-      status: error.status,
+      status: error.response?.status || 500,
       errorCode: errorResponse.code,
-      message: errorResponse.message,
+      message: errorResponse.message || 'An error occurred',
       data: {},
     };
   }
 };
-
 
 export const getContactById = async (
   identifier: string
@@ -72,18 +71,18 @@ export const getContactById = async (
   const apiInstance = initializeBrevoClient();
 
   try {
-    const response = await apiInstance.getContactInfo(identifier);
+    const response = await apiInstance.get(`/contacts/${identifier}`);
     return {
       status: 200,
-      data: response,
+      data: response.data,
       message: 'Contact details retrieved successfully',
     };
   } catch (error: any) {
-    const errorResponse = JSON.parse(error.response.text);
+    const errorResponse = error.response?.data || {};
     return {
-      status: error.status,
+      status: error.response?.status || 500,
       errorCode: errorResponse.code,
-      message: errorResponse.message,
+      message: errorResponse.message || 'An error occurred',
       data: {},
     };
   }
@@ -99,24 +98,23 @@ export const updateContact = async (
   const apiInstance = initializeBrevoClient();
 
   try {
-    const contact = new UpdateContact();
-    if (email) contact.email = email;
-    if (attributes) contact.attributes = attributes;
-    if (listIds) contact.listIds = listIds;
-    if (updateEnabled) contact.updateEnabled = updateEnabled;
-
-    await apiInstance.updateContact(identifier, contact);
+    await apiInstance.put(`/contacts/${identifier}`, {
+      email,
+      attributes,
+      listIds,
+      updateEnabled,
+    });
     return {
       status: 204,
       data: {},
       message: 'Contact successfully updated',
     };
   } catch (error: any) {
-    const errorResponse = JSON.parse(error.response.text);
+    const errorResponse = error.response?.data || {};
     return {
-      status: error.status,
+      status: error.response?.status || 500,
       errorCode: errorResponse.code,
-      message: errorResponse.message,
+      message: errorResponse.message || 'An error occurred',
       data: {},
     };
   }
@@ -128,18 +126,18 @@ export const deleteContact = async (
   const apiInstance = initializeBrevoClient();
 
   try {
-    await apiInstance.deleteContact(identifier);
+    await apiInstance.delete(`/contacts/${identifier}`);
     return {
       status: 204,
       data: {},
       message: 'Contact successfully deleted',
     };
   } catch (error: any) {
-    const errorResponse = JSON.parse(error.response.text);
+    const errorResponse = error.response?.data || {};
     return {
-      status: error.status,
+      status: error.response?.status || 500,
       errorCode: errorResponse.code,
-      message: errorResponse.message,
+      message: errorResponse.message || 'An error occurred',
       data: {},
     };
   }
