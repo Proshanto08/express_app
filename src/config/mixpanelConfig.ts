@@ -1,5 +1,3 @@
-// src/config/mixpanel.config.ts
-
 import dotenv from 'dotenv';
 
 dotenv.config();

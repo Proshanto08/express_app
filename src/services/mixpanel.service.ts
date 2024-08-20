@@ -1,7 +1,7 @@
 // src/services/mixpanel.service.ts
 
 import axios from 'axios';
-import { mixpanelConfig } from '../config/mixpanel.config';
+import { mixpanelConfig } from '../config/mixpanelConfig';
 
 interface EventProperties {
     [key: string]: any;
