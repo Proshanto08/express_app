@@ -13,6 +13,7 @@ import brevoFolderRoutes from './brevo/folders/brevoFolderRoutes';
 import brevoEventRoutes from './brevo/events/brevoEventRoutes';
 import emailRoutes from './brevo/email/brevoEmailRoutes';
 import eventRoutes from './routes/event.routes';
+import googleAnalyticsRoutes from './routes/googleAnalytics.routes';
 
 const app = express();
 app.use(rateLimiter);
@@ -35,6 +36,7 @@ app.use('/api/brevo', brevoFolderRoutes);
 app.use('/api/brevo', brevoEventRoutes);
 app.use('/api', emailRoutes)
 app.use('/api', eventRoutes);
+app.use('/api', googleAnalyticsRoutes);
 
 
 

@@ -1,11 +1,10 @@
 // src/routes/event.routes.ts
 
 import { Router } from 'express';
-import { EventController } from '../controllers/event.controller';
+import { trackEventController } from '../controllers/event.controller';
 
 const router = Router();
-const eventController = new EventController();
 
-router.post('/track', eventController.trackEvent);
+router.post('/track-event', trackEventController);
 
 export default router;
