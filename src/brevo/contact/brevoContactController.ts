@@ -1,79 +1,46 @@
 import { Request, Response } from 'express';
-import { createContact, getContact, updateContact, deleteContact, getAllContacts } from './brevoContactService';
+import { getAllContacts, createContact, getContactById, updateContact, deleteContact } from './brevoContactService';
 
-export const createContactController = async (req: Request, res: Response): Promise<Response> => {
-  const { email, extId, SMS, whatsapp, landlineNumber, attributes, listIds } = req.body;
+export const getAllContactsController = async (req: Request, res: Response): Promise<void> => {
+  const { limit, offset, sort } = req.query;
 
-  try {
-    const result = await createContact(email, extId, SMS, whatsapp, landlineNumber, attributes, listIds);
+  const parsedLimit = limit ? Number(limit) : undefined;
+  const parsedOffset = offset ? Number(offset) : undefined;
+  const parsedSort = sort ? String(sort) : 'desc';
 
-    if (result.status === 201) {
-      return res.status(201).json({ message: 'Contact successfully created', data: result.data });
-    } else if (result.status === 400) {
-      return res.status(400).json({ error: 'Bad request', message: result.message });
-    } else {
-      return res.status(result.status).json({ error: 'Internal server error', message: result.message });
-    }
-  } catch (error) {
-    return res.status(500).json({ error: 'Internal server error', message: 'An unexpected error occurred' });
-  }
+  const result = await getAllContacts(parsedLimit, parsedOffset, parsedSort);
+
+  res.status(result.status).json(result);
 };
 
-export const getContactController = async (req: Request, res: Response): Promise<Response> => {
+export const createContactController = async (req: Request, res: Response): Promise<void> => {
+  const { email, attributes, listIds, updateEnabled } = req.body;
+
+  const result = await createContact(email, attributes, listIds, updateEnabled);
+  res.status(result.status).json(result);
+};
+
+export const getContactByIdController = async (req: Request, res: Response) => {
   const { identifier } = req.params;
+  const result = await getContactById(identifier);
 
-  const result = await getContact(identifier);
-
-  if (result.status === 200) {
-    return res.status(200).json({ message: 'Contact retrieved successfully', data: result.data });
-  } else if (result.status === 400) {
-    return res.status(400).json({ error: 'Bad request', message: result.message });
-  } else {
-    return res.status(result.status).json({ error: 'Internal server error', message: result.message });
-  }
+  res.status(result.status).json(result);
 };
 
-export const updateContactController = async (req: Request, res: Response): Promise<Response> => {
+export const updateContactController = async (req: Request, res: Response) => {
   const { identifier } = req.params;
-  const { attributes, listIds } = req.body;
+  const { email, attributes, listIds, updateEnabled } = req.body;
 
-  try {
-    const result = await updateContact(identifier, attributes, listIds);
+  const result = await updateContact(identifier, email, attributes, listIds, updateEnabled);
 
-    if (result.status === 204) {
-      return res.status(200).json({ message: 'Contact successfully updated', data: result.data });
-    } else if (result.status === 400) {
-      return res.status(400).json({ error: 'Bad request', message: result.message });
-    } else {
-      return res.status(result.status).json({ error: 'Internal server error', message: result.message });
-    }
-  } catch (error) {
-    return res.status(500).json({ error: 'Internal server error', message: 'An unexpected error occurred' });
-  }
+  res.status(result.status).json(result);
 };
 
-export const deleteContactController = async (req: Request, res: Response): Promise<Response> => {
+export const deleteContactController = async (req: Request, res: Response) => {
   const { identifier } = req.params;
 
   const result = await deleteContact(identifier);
 
-  if (result.status === 204) {
-    return res.status(200).json({ message: 'Contact successfully deleted' });
-  } else if (result.status === 400) {
-    return res.status(400).json({ error: 'Bad request', message: result.message });
-  } else {
-    return res.status(result.status).json({ error: 'Internal server error', message: result.message });
-  }
+  res.status(result.status).json(result);
 };
 
-export const getAllContactsController = async (_req: Request, res: Response): Promise<Response> => {
-  const result = await getAllContacts();
-
-  if (result.status === 200) {
-    return res.status(200).json({ message: 'Contacts retrieved successfully', data: result.data });
-  } else if (result.status === 400) {
-    return res.status(400).json({ error: 'Bad request', message: result.message });
-  } else {
-    return res.status(result.status).json({ error: 'Internal server error', message: result.message });
-  }
-};

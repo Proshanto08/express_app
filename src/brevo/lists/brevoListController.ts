@@ -1,72 +1,82 @@
 import { Request, Response } from 'express';
-import { createList, getLists, getListById, updateList, deleteList } from './brevoListService';
+import { getAllLists, createList, getList, updateList, deleteList,getContactsFromList,addContactsToList, removeContactsFromList } from './brevoListService';
 
-export const createListController = async (req: Request, res: Response): Promise<Response> => {
+export const getAllListsController = async (req: Request, res: Response): Promise<void> => {
+  const { limit, offset, sort } = req.query;
+
+
+  const parsedLimit = limit ? Number(limit) : undefined; 
+  const parsedOffset = offset ? Number(offset) : undefined; 
+  const parsedSort = sort ? String(sort) : 'desc'; 
+
+  const result = await getAllLists(parsedLimit, parsedOffset, parsedSort);
+
+  res.status(result.status).json(result);
+};
+
+export const createListController = async (req: Request, res: Response): Promise<void> => {
   const { name, folderId } = req.body;
-
-  if (!folderId) {
-    return res.status(400).json({ error: 'Bad request', message: 'Folder id is missing' });
-  }
-
   const result = await createList(name, folderId);
-
-  if (result.status === 201) {
-    return res.status(201).json({ message: 'List successfully created', data: result.data });
-  } else if (result.status === 400) {
-    return res.status(400).json({ error: 'Bad request', message: result.message });
-  } else {
-    return res.status(result.status).json({ error: 'Internal server error', message: result.message });
-  }
+  res.status(result.status).json(result);
 };
 
-export const getListsController = async (_req: Request, res: Response): Promise<Response> => {
-  const result = await getLists();
-
-  if (result.status === 200) {
-    return res.status(200).json({ message: 'Lists retrieved successfully', data: result.data });
-  } else if (result.status === 400) {
-    return res.status(400).json({ error: 'Bad request', message: result.message });
-  } else {
-    return res.status(result.status).json({ error: 'Internal server error', message: result.message });
-  }
+export const getListController = async (req: Request, res: Response): Promise<void> => {
+  const { listId } = req.params;
+  const result = await getList(Number(listId));
+  res.status(result.status).json(result);
 };
 
-export const getListByIdController = async (req: Request, res: Response): Promise<Response> => {
-  const { id } = req.params;
-  const result = await getListById(Number(id));
-
-  if (result.status === 200) {
-    return res.status(200).json({ message: 'List details retrieved successfully', data: result.data });
-  } else if (result.status === 400) {
-    return res.status(400).json({ error: 'Bad request', message: result.message });
-  } else {
-    return res.status(result.status).json({ error: 'Internal server error', message: result.message });
-  }
+export const updateListController = async (req: Request, res: Response): Promise<void> => {
+  const { listId } = req.params;
+  const { name, folderId } = req.body;
+  const result = await updateList(Number(listId), name, folderId);
+  res.status(result.status).json(result);
 };
 
-export const updateListController = async (req: Request, res: Response): Promise<Response> => {
-  const { id } = req.params;
-  const { name } = req.body;
-  const result = await updateList(Number(id), name);
-
-  if (result.status === 204) {
-    return res.status(200).json({ message: 'List successfully updated' });
-  } else if (result.status === 400) {
-    return res.status(400).json({ error: 'Bad request', message: result.message });
-  } else {
-    return res.status(result.status).json({ error: 'Internal server error', message: result.message });
-  }
+export const deleteListController = async (req: Request, res: Response): Promise<void> => {
+  const { listId } = req.params;
+  const result = await deleteList(Number(listId));
+  res.status(result.status).json(result);
 };
 
-export const deleteListController = async (req: Request, res: Response): Promise<Response> => {
-  const { id } = req.params;
-  const result = await deleteList(Number(id));
 
-  if (result.status === 204) {
-    return res.status(200).json({ message: 'List successfully deleted' });
-  } else if (result.status === 400) {
-    return res.status(400).json({ error: 'Bad request', message: result.message });
-  } else {
-    return res.status(result.status).json({ error: 'Internal server error', message: result.message });
-  }
+export const getContactsFromListController = async (req: Request, res: Response): Promise<void> => {
+    const { listId } = req.params;
+    const { modifiedSince, limit, offset, sort } = req.query;
+
+   
+    const parsedLimit = limit ? Number(limit) : 50; 
+    const parsedOffset = offset ? Number(offset) : 0;
+    const parsedSort = sort ? String(sort) : 'desc'; 
+    const parsedModifiedSince = modifiedSince ? String(modifiedSince) : undefined;
+
+    const result = await getContactsFromList(
+        Number(listId),
+        parsedModifiedSince,
+        parsedLimit,
+        parsedOffset,
+        parsedSort
+    );
+
+    res.status(result.status).json(result);
 };
+
+
+
+export const addContactsToListController = async (req: Request, res: Response): Promise<void> => {
+  const { listId } = req.params;
+  const { emails } = req.body;
+
+  const result = await addContactsToList(Number(listId), emails);
+  res.status(result.status).json(result);
+};
+
+export const removeContactsFromListController = async (req: Request, res: Response): Promise<void> => {
+  const { listId } = req.params;
+  const { emails, removeAll } = req.body;
+
+  const result = await removeContactsFromList(Number(listId), emails, removeAll);
+  res.status(result.status).json(result);
+};
+
+

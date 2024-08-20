@@ -1,152 +1,146 @@
-import axios from 'axios';
-
-interface IContactAttributes {
-  [key: string]: any; 
-}
+import { initializeBrevoClient } from '../../config/brevoConfig';
+import { CreateContact, UpdateContact } from 'sib-api-v3-sdk';
 
 interface IApiResponse {
   status: number;
-  data?: any;
+  errorCode?: string;
   message?: string;
+  data: any;
 }
 
-const brevoClient = axios.create({
-  baseURL: 'https://api.brevo.com/v3',
-  headers: {
-    'api-key': process.env.BREVO_API_KEY, 
-    'Content-Type': 'application/json',
-  },
-});
+export const getAllContacts = async (
+  limit?: number,
+  offset?: number,
+  sort?: string
+): Promise<IApiResponse> => {
+  const apiInstance = initializeBrevoClient();
 
-export const checkListExists = async (listId: number): Promise<boolean> => {
   try {
-    const response = await brevoClient.get(`/contacts/lists/${listId}`);
-    return response.status === 200;
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response?.status === 404) {
-      return false; 
-    }
-    throw error; 
+    const response = await apiInstance.getContacts(limit, offset, sort );
+    return {
+      status: 200,
+      data: response,
+      message: 'Contacts retrieved successfully',
+    };
+  } catch (error: any) {
+    const errorResponse = JSON.parse(error.response.text);
+    return {
+      status: error.status,
+      errorCode: errorResponse.code,
+      message: errorResponse.message,
+      data: {},
+    };
   }
 };
 
 export const createContact = async (
-  email?: string, 
-  extId?: string, 
-  SMS?: string, 
-  whatsapp?: string, 
-  landlineNumber?: string, 
-  attributes?: IContactAttributes, 
-  listIds?: number[]
+  email: string,
+  attributes: object,
+  listIds?: number[],
+  updateEnabled?: boolean
 ): Promise<IApiResponse> => {
+  const apiInstance = initializeBrevoClient();
+
   try {
-    if (!email && !extId && !SMS && !whatsapp && !landlineNumber) {
-      throw new Error('Please provide at least one contact identifier value (email, ext_id, SMS, WHATSAPP, LANDLINE_NUMBER, EXT_ID)');
-    }
+    const contact = new CreateContact();
+    contact.email = email;
+    contact.attributes = attributes;
+    if (listIds) contact.listIds = listIds;
+    if (updateEnabled) contact.updateEnabled = updateEnabled;
 
-    if (listIds && listIds.length > 0) {
-      for (const listId of listIds) {
-        const listExists = await checkListExists(listId);
-        if (!listExists) {
-          return {
-            status: 400,
-            message: `List ID ${listId} does not exist`
-          };
-        }
-      }
-    }
-
-    const response = await brevoClient.post('/contacts', { email, extId, SMS, whatsapp, landlineNumber, attributes, listIds });
-    return { status: response.status, data: response.data };
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      return {
-        status: error.response?.status || 500,
-        message: error.response?.data?.message || 'Unknown error',
-      };
-    }
-    return { status: 500, message: 'Unknown error' };
+    const response = await apiInstance.createContact(contact);
+    return {
+      status: 201,
+      data: response,
+      message: 'Contact successfully created',
+    };
+  } catch (error: any) {
+    const errorResponse = JSON.parse(error.response.text);
+    return {
+      status: error.status,
+      errorCode: errorResponse.code,
+      message: errorResponse.message,
+      data: {},
+    };
   }
 };
 
-export const getAllContacts = async (): Promise<IApiResponse> => {
-  try {
-    const response = await brevoClient.get('/contacts');
-    return { status: response.status, data: response.data };
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      return {
-        status: error.response?.status || 500,
-        message: error.response?.data?.message || 'Unknown error',
-      };
-    }
-    return { status: 500, message: 'Unknown error' };
-  }
-};
 
-export const getContact = async (identifier: string): Promise<IApiResponse> => {
+export const getContactById = async (
+  identifier: string
+): Promise<IApiResponse> => {
+  const apiInstance = initializeBrevoClient();
+
   try {
-    const response = await brevoClient.get(`/contacts/${identifier}`);
-    return { status: response.status, data: response.data };
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      return {
-        status: error.response?.status || 500,
-        message: error.response?.data?.message || 'Unknown error',
-      };
-    }
-    return { status: 500, message: 'Unknown error' };
+    const response = await apiInstance.getContactInfo(identifier);
+    return {
+      status: 200,
+      data: response,
+      message: 'Contact details retrieved successfully',
+    };
+  } catch (error: any) {
+    const errorResponse = JSON.parse(error.response.text);
+    return {
+      status: error.status,
+      errorCode: errorResponse.code,
+      message: errorResponse.message,
+      data: {},
+    };
   }
 };
 
 export const updateContact = async (
-  identifier: string, 
-  attributes?: IContactAttributes, 
-  listIds?: number[]
+  identifier: string,
+  email?: string,
+  attributes?: object,
+  listIds?: number[],
+  updateEnabled?: boolean
 ): Promise<IApiResponse> => {
-  try {
-    if (listIds && listIds.length > 0) {
-      for (const listId of listIds) {
-        const listExists = await checkListExists(listId);
-        if (!listExists) {
-          return {
-            status: 400,
-            message: `List ID ${listId} does not exist`
-          };
-        }
-      }
-    }
+  const apiInstance = initializeBrevoClient();
 
-    await brevoClient.put(`/contacts/${identifier}`, { attributes, listIds });
+  try {
+    const contact = new UpdateContact();
+    if (email) contact.email = email;
+    if (attributes) contact.attributes = attributes;
+    if (listIds) contact.listIds = listIds;
+    if (updateEnabled) contact.updateEnabled = updateEnabled;
+
+    await apiInstance.updateContact(identifier, contact);
     return {
       status: 204,
-      message:  'Contact successfully updated'
+      data: {},
+      message: 'Contact successfully updated',
     };
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      return {
-        status: error.response?.status || 500,
-        message: error.response?.data?.message || 'Unknown error',
-      };
-    }
-    return { status: 500, message: 'Unknown error' };
+  } catch (error: any) {
+    const errorResponse = JSON.parse(error.response.text);
+    return {
+      status: error.status,
+      errorCode: errorResponse.code,
+      message: errorResponse.message,
+      data: {},
+    };
   }
 };
 
-export const deleteContact = async (identifier: string): Promise<IApiResponse> => {
+export const deleteContact = async (
+  identifier: string
+): Promise<IApiResponse> => {
+  const apiInstance = initializeBrevoClient();
+
   try {
-    await brevoClient.delete(`/contacts/${identifier}`);
+    await apiInstance.deleteContact(identifier);
     return {
       status: 204,
-      message:  'Contact successfully updated'
+      data: {},
+      message: 'Contact successfully deleted',
     };
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      return {
-        status: error.response?.status || 500,
-        message: error.response?.data?.message || 'Unknown error',
-      };
-    }
-    return { status: 500, message: 'Unknown error' };
+  } catch (error: any) {
+    const errorResponse = JSON.parse(error.response.text);
+    return {
+      status: error.status,
+      errorCode: errorResponse.code,
+      message: errorResponse.message,
+      data: {},
+    };
   }
 };

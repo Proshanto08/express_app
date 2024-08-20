@@ -1,20 +1,20 @@
 import express from 'express';
 import { 
   createFolderController, 
-  // getAllFoldersController, 
-  // getFolderByIdController, 
-  // updateFolderController, 
-  // deleteFolderController,
-  // getListsInFolderController
+  getFoldersController, 
+  getFolderController, 
+  updateFolderController, 
+  deleteFolderController,
+  getFolderListsController,
 } from './brevoFolderController';
 
 const router = express.Router();
 
 router.post('/folders', createFolderController);
-// router.get('/folders', getAllFoldersController);
-// router.get('/folders/:id', getFolderByIdController);
-// router.put('/folders/:id', updateFolderController);
-// router.delete('/folders/:id', deleteFolderController);
-// router.get('/folders/:folderId/lists', getListsInFolderController);
+router.get('/folders', getFoldersController);
+router.get('/folders/:folderId', getFolderController);
+router.put('/folders/:folderId', updateFolderController);
+router.delete('/folders/:folderId', deleteFolderController);
+router.get('/folders/:folderId/lists', getFolderListsController);
 
 export default router;
