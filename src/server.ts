@@ -1,4 +1,4 @@
-import { connectDB } from './database';
+import { connectDB } from './database/mongoDB';
 import app from './app';
 import { config } from './config/config';
 import { generateToken } from './services/authService';

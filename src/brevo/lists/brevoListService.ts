@@ -19,7 +19,7 @@ export const getAllLists = async (
       params: { limit, offset, sort },
     });
     return {
-      status: 200,
+      status: response.status,
       data: response.data,
       message: 'Lists retrieved successfully',
     };
@@ -43,7 +43,7 @@ export const createList = async (name: string, folderId: number): Promise<IApiRe
       folderId,
     });
     return {
-      status: 201,
+      status: response.status,
       data: response.data,
       message: 'List successfully created',
     };
@@ -64,7 +64,7 @@ export const getList = async (listId: number): Promise<IApiResponse> => {
   try {
     const response = await apiInstance.get(`/contacts/lists/${listId}`);
     return {
-      status: 200,
+      status: response.status,
       data: response.data,
       message: 'List details retrieved successfully',
     };
@@ -83,12 +83,12 @@ export const updateList = async (listId: number, name: string, folderId: number)
   const apiInstance = initializeBrevoClient();
 
   try {
-    await apiInstance.put(`/contacts/lists/${listId}`, {
+    const response = await apiInstance.put(`/contacts/lists/${listId}`, {
       name,
       folderId,
     });
     return {
-      status: 204,
+      status: response.status,
       data: {},
       message: 'List successfully updated',
     };
@@ -107,9 +107,9 @@ export const deleteList = async (listId: number): Promise<IApiResponse> => {
   const apiInstance = initializeBrevoClient();
 
   try {
-    await apiInstance.delete(`/contacts/lists/${listId}`);
+    const response = await apiInstance.delete(`/contacts/lists/${listId}`);
     return {
-      status: 204,
+      status: response.status,
       data: {},
       message: 'List successfully deleted',
     };
@@ -160,43 +160,13 @@ export const addContactsToList = async (
   const apiInstance = initializeBrevoClient();
 
   try {
-    const response = await apiInstance.post(`/contacts/lists/${listId}/contacts`, {
+    const response = await apiInstance.post(`/contacts/lists/${listId}/contacts/add`, {
       emails,
     });
     return {
-      status: 201,
+      status: response.status,
       data: response.data,
       message: 'Contacts added to the list successfully',
-    };
-  } catch (error: any) {
-    const errorResponse = error.response?.data || {};
-    return {
-      status: error.response?.status || 500,
-      errorCode: errorResponse.code,
-      message: errorResponse.message || 'An error occurred',
-      data: {},
-    };
-  }
-};
-
-export const removeContactsFromList = async (
-  listId: number,
-  emails: string[],
-  removeAll?: boolean
-): Promise<IApiResponse> => {
-  const apiInstance = initializeBrevoClient();
-
-  try {
-    const response = await apiInstance.delete(`/contacts/lists/${listId}/contacts`, {
-      data: {
-        emails,
-        all: removeAll ? 'true' : 'false',
-      },
-    });
-    return {
-      status: 204,
-      data: {},
-      message: 'Contacts removed from the list successfully',
     };
   } catch (error: any) {
     const errorResponse = error.response?.data || {};
