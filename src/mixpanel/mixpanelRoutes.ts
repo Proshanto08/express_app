@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { trackEventController, createIdentityController, createAliasController, mergeIdentitiesController } from './mixpanelController';
+import {
+    trackEventController,
+    createIdentityController,
+    createAliasController,
+    mergeIdentitiesController
+} from './mixpanelController';
 
 const router = Router();
 

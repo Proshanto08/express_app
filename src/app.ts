@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
 import corsMiddleware from './middleware/corsMiddleware';
 import helloWorldRoutes from './routes/helloWorldRoutes';
 import rateLimiter from './middleware/rateLimitMiddleware';
@@ -19,6 +20,7 @@ const app = express();
 app.use(rateLimiter);
 app.use(bodyParser.json());
 app.use(corsMiddleware);
+app.use(cookieParser());
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello 6sense. And app is running on port 3000');
