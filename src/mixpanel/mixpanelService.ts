@@ -1,130 +1,40 @@
-import axios from 'axios';
-import { mixpanelConfig } from '../config/mixpanelConfig';
+import Mixpanel from 'mixpanel';
 
-interface IEventProperties {
-    [key: string]: any;
+export const mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN || '');
+
+interface EventProperties {
+  [key: string]: string | number | boolean | null;
 }
 
-interface IApiResponse {
-    status: number;
-    errorCode?: string;
-    message?: string;
-    data?: any;
-}
+export const trackEvent = async (eventName: string, properties: EventProperties, distinctId: string): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const email = properties.email as string | undefined;
 
-export const trackEvent = async (eventName: string, properties: IEventProperties): Promise<IApiResponse> => {
-    const data = new URLSearchParams({
-        data: JSON.stringify({
-            event: eventName,
-            properties: {
-                ...properties,
-                token: mixpanelConfig.projectToken,
-            },
-        }),
-    }).toString();
-
-    try {
-        const response = await axios.post(`${mixpanelConfig.apiUrl}/track`, data, { 
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-        });
-        return { 
-            status: response.status, 
-            data: response.data, 
-            message: 'Event tracked successfully' 
-        };
-    } catch (error: any) {
-        const errorResponse = error.response?.data || {};
-        return {
-            status: error.response?.status || 500,
-            errorCode: errorResponse.code || 'UNKNOWN_ERROR',
-            message: errorResponse.message || 'Failed to track event',
-            data: errorResponse,
-        };
+    // Create or update the identity with the email
+    if (email) {
+      mixpanel.people.set(email, {
+        $email: email,
+        $distinct_id: email, // Set the email as the distinct ID for future tracking
+      }, (err) => {
+        if (err) {
+          console.error('Error creating/updating identity:', err);
+          return reject(err); // Early exit on error
+        }
+        console.log('Identity created/updated successfully');
+      });
     }
-};
 
-export const createIdentity = async (distinctId: string, userProperties: any): Promise<IApiResponse> => {
-    const data = new URLSearchParams({
-        data: JSON.stringify({
-            distinct_id: distinctId,
-            properties: userProperties,
-            token: mixpanelConfig.projectToken,
-        }),
-    }).toString();
-
-    try {
-        const response = await axios.post(`${mixpanelConfig.apiUrl}/track`, data, { 
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-        });
-        return { 
-            status: response.status, 
-            data: response.data, 
-            message: 'Identity created successfully' 
-        };
-    } catch (error: any) {
-        const errorResponse = error.response?.data || {};
-        return {
-            status: error.response?.status || 500,
-            errorCode: errorResponse.code || 'UNKNOWN_ERROR',
-            message: errorResponse.message || 'Failed to create identity',
-            data: errorResponse,
-        };
-    }
-};
-
-export const createAlias = async (distinctId: string, alias: string): Promise<IApiResponse> => {
-    const data = new URLSearchParams({
-        data: JSON.stringify({
-            distinct_id: distinctId,
-            alias: alias,
-            token: mixpanelConfig.projectToken,
-        }),
-    }).toString();
-
-    try {
-        const response = await axios.post(`${mixpanelConfig.apiUrl}/track`, data, { 
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-        });
-        return { 
-            status: response.status, 
-            data: response.data, 
-            message: 'Alias created successfully' 
-        };
-    } catch (error: any) {
-        const errorResponse = error.response?.data || {};
-        return {
-            status: error.response?.status || 500,
-            errorCode: errorResponse.code || 'UNKNOWN_ERROR',
-            message: errorResponse.message || 'Failed to create alias',
-            data: errorResponse,
-        };
-    }
-};
-
-export const mergeIdentities = async (identities: any[]): Promise<IApiResponse> => {
-    const data = new URLSearchParams({
-        data: JSON.stringify({
-            identities: identities,
-            token: mixpanelConfig.projectToken,
-        }),
-    }).toString();
-
-    try {
-        const response = await axios.post(`${mixpanelConfig.apiUrl}/import`, data, { 
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-        });
-        return { 
-            status: response.status, 
-            data: response.data, 
-            message: 'Identities merged successfully' 
-        };
-    } catch (error: any) {
-        const errorResponse = error.response?.data || {};
-        return {
-            status: error.response?.status || 500,
-            errorCode: errorResponse.code || 'UNKNOWN_ERROR',
-            message: errorResponse.message || 'Failed to merge identities',
-            data: errorResponse,
-        };
-    }
+    // Track the event with the updated distinct ID
+    mixpanel.track(eventName, {
+      ...properties,
+      distinct_id: distinctId,
+    }, (error) => {
+      if (error) {
+        console.error('Error tracking event:', error);
+        return reject(error); // Early exit on error
+      }
+      console.log(`Event "${eventName}" tracked for distinct ID: ${distinctId}`);
+      resolve();
+    });
+  });
 };

@@ -1,70 +1,39 @@
+// src/controllers/eventController.ts
 import { Request, Response } from 'express';
 import { trackEvent } from './mixpanelService';
 import { v4 as uuidv4 } from 'uuid';
 
-export const trackEventController = async (req: Request, res: Response): Promise<void> => {
-    const { eventName, properties } = req.body;
+declare module 'express-session' {
+  interface Session {
+    distinct_id?: string;
+  }
+}
 
-    if (!eventName || !properties) {
-        res.status(400).json({ status: 400, message: 'Event name and properties are required.' });
-        return;
-    }
+export const handleTrackEvent = async (req: Request, res: Response): Promise<void> => {
+  const { eventName, properties } = req.body;
 
-    let distinctId = req.cookies.distinctId;
-    if (!distinctId) {
-        distinctId = uuidv4();
-        res.cookie('distinctId', distinctId, { httpOnly: true, maxAge: 86400000 }); // 1 day
-    }
+  if (!eventName) {
+    res.status(400).json({ status: 400, message: 'Event name is required' });
+    return;
+  }
 
-    properties.distinct_id = distinctId;
-    const result = await trackEvent(eventName, properties);
-    res.status(result.status).json(result);
-};
+  const email = properties.email as string | undefined;
+  let distinctId: string;
 
+  if (email) {
+    // If email is present, use it as the distinct ID
+    distinctId = email;
+    req.session.distinct_id = distinctId; // Optionally save email as distinct_id in session
+  } else {
+    // Check for an existing distinct_id in the session
+    distinctId = req.session.distinct_id || uuidv4(); // Generate a UUID if none exists
+    req.session.distinct_id = distinctId; // Save it in the session
+  }
 
-
-import { createIdentity } from './mixpanelService';
-
-export const createIdentityController = async (req: Request, res: Response): Promise<void> => {
-    const { distinctId, userProperties } = req.body;
-
-    if (!distinctId || !userProperties) {
-        res.status(400).json({ status: 400, message: 'Distinct ID and user properties are required.' });
-        return;
-    }
-
-    const result = await createIdentity(distinctId, userProperties);
-    res.status(result.status).json(result);
-};
-
-
-
-import { createAlias } from './mixpanelService';
-
-export const createAliasController = async (req: Request, res: Response): Promise<void> => {
-    const { distinctId, alias } = req.body;
-
-    if (!distinctId || !alias) {
-        res.status(400).json({ status: 400, message: 'Distinct ID and alias are required.' });
-        return;
-    }
-
-    const result = await createAlias(distinctId, alias);
-    res.status(result.status).json(result);
-};
-
-
-
-import { mergeIdentities } from './mixpanelService';
-
-export const mergeIdentitiesController = async (req: Request, res: Response): Promise<void> => {
-    const { identities } = req.body;
-
-    if (!identities || !Array.isArray(identities)) {
-        res.status(400).json({ status: 400, message: 'Identities are required and should be an array.' });
-        return;
-    }
-
-    const result = await mergeIdentities(identities);
-    res.status(result.status).json(result);
+  try {
+    await trackEvent(eventName, properties, distinctId);
+    res.status(200).json({ status: 200, message: 'Event tracked successfully', distinctId });
+  } catch (error) {
+    res.status(500).json({ status: 500, message: 'An error occurred', error });
+  }
 };

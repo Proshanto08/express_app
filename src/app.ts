@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
+import session from 'express-session';
 import corsMiddleware from './middleware/corsMiddleware';
 import helloWorldRoutes from './routes/helloWorldRoutes';
 import rateLimiter from './middleware/rateLimitMiddleware';
@@ -21,6 +22,12 @@ app.use(rateLimiter);
 app.use(bodyParser.json());
 app.use(corsMiddleware);
 app.use(cookieParser());
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your_secret_key',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false }, // Set to true if using HTTPS
+}));
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello 6sense. And app is running on port 3000');
