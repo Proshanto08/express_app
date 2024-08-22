@@ -1,8 +1,5 @@
-import dotenv from 'dotenv';
+import mixpanel from 'mixpanel';
 
-dotenv.config();
-
-export const mixpanelConfig = {
-    projectToken: process.env.MIXPANEL_PROJECT_TOKEN || '',
-    apiUrl: 'https://api.mixpanel.com',
-};
+const mixpanelInstance = mixpanel.init(process.env.MIXPANEL_PROJECT_TOKEN || '', {
+  debug: true, // Optional: Enables debug mode
+});
