@@ -1,9 +1,10 @@
-// routes/eventRoutes.ts
 import { Router } from 'express';
-import { handleTrackEvent } from './mixpanelController';
+import {trackEvent ,clearDistinctId} from './mixpanelController';
 
 const router = Router();
 
-router.post('/track', handleTrackEvent);
+router.post('/track-event', trackEvent);
+router.post('/clear-distinct-id', clearDistinctId);
+
 
 export default router;
