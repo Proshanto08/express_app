@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-interface BrevoEmailOptions {
+interface IBrevoEmailOptions {
   subject: string;
   htmlContent: string;
   sender: { name: string; email: string };
@@ -11,14 +11,25 @@ interface BrevoEmailOptions {
   attachments?: Array<{ url?: string; content?: string; name: string }>;
 }
 
-interface TransactionalEmailResponse {
+interface ITransactionalEmailResponse {
   status: number;
   data: any;
   message?: string;
   errorCode?: string;
 }
 
-export const sendBrevoEmail = async (options: BrevoEmailOptions): Promise<TransactionalEmailResponse> => {
+interface ITransactionalEmailFilter {
+  email?: string;
+  templateId?: number;
+  messageId?: string;
+  startDate?: string; 
+  endDate?: string;   
+  sort?: 'asc' | 'desc'; 
+  limit?: number; 
+  offset?: number;
+}
+
+export const sendBrevoEmail = async (options: IBrevoEmailOptions): Promise<ITransactionalEmailResponse> => {
   const { subject, htmlContent, sender, to, replyTo, headers, params, attachments } = options;
 
   try {
@@ -46,6 +57,57 @@ export const sendBrevoEmail = async (options: BrevoEmailOptions): Promise<Transa
       status: response.status,
       data: response.data,
       message: 'Email successfully sent',
+    };
+  } catch (error: any) {
+    const errorResponse = error.response?.data || {};
+    return {
+      status: error.response?.status || 500,
+      errorCode: errorResponse.code,
+      message: errorResponse.message || 'An error occurred',
+      data: {},
+    };
+  }
+};
+
+export const getTransactionalEmails = async (
+  filters: ITransactionalEmailFilter
+): Promise<ITransactionalEmailResponse> => {
+  const {
+    email,
+    templateId,
+    messageId,
+    startDate,
+    endDate,
+    sort = 'desc',
+    limit = 500,
+    offset = 0
+  } = filters;
+
+  try {
+    const response = await axios.get(
+      'https://api.brevo.com/v3/smtp/emails',
+      {
+        params: {
+          email,
+          templateId,
+          messageId,
+          startDate,
+          endDate,
+          sort,
+          limit,
+          offset
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          'api-key': process.env.BREVO_API_KEY || '',
+        }
+      }
+    );
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: 'Transactional emails retrieved successfully',
     };
   } catch (error: any) {
     const errorResponse = error.response?.data || {};
