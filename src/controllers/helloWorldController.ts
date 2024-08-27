@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { getHelloMessage } from '../services/helloWorldService';
 
-export const getHelloWorld = (req: Request, res: Response): void => {
-  const message = getHelloMessage();
-  res.send(message);
+export const getHelloWorld = async (req: Request, res: Response): Promise<void> => {
+  const result = await getHelloMessage();
+  res.status(result.status).json(result);
 };

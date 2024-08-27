@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { handleCreateEvent } from './brevoEventController'; // Adjust the import path as needed
+import { handleCreateEvent } from './brevoEventController';
 
 const router = Router();
 

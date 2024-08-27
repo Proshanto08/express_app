@@ -1,105 +1,181 @@
 import axios from 'axios';
-import { v4 as uuidv4 } from 'uuid';
+import { mixpanelConfig } from '../config/mixpanelConfig';
 
-const PROJECT_TOKEN = '8b54ca4641b6254e7103b98d9670dba1';
-const MIXPANEL_API_URL = 'https://api.mixpanel.com/track';
-const MIXPANEL_PEOPLE_API_URL = 'https://api.mixpanel.com/engage';
-const MIXPANEL_IMPORT_API_URL = 'https://api.mixpanel.com/import';
+interface IApiResponse {
+  status: number;
+  errorCode?: string;
+  message?: string;
+  data: any;
+}
 
-export const updateUserProfile = async (distinctId: string, properties: any) => {
+interface EventProperties {
+  [key: string]: any;
+}
+
+export const updateUserProfile = async (distinctId: string, properties: EventProperties): Promise<IApiResponse> => {
+  const { peopleApiUrl, projectToken } = mixpanelConfig;
+
   try {
-    await axios.post(MIXPANEL_PEOPLE_API_URL, null, {
+    const response = await axios.post(peopleApiUrl, null, {
       params: {
         data: JSON.stringify({
-          $token: PROJECT_TOKEN,
+          $token: projectToken,
           $distinct_id: distinctId,
           $set: properties,
         }),
       },
     });
-  } catch (error) {
-    console.error('Error updating user profile:', error);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: 'User profile updated successfully',
+    };
+  } catch (error: any) {
+    const errorResponse = error.response?.data || {};
+    return {
+      status: error.response?.status || 500,
+      errorCode: errorResponse.errorCode,
+      message: errorResponse.message || 'Error updating user profile',
+      data: {},
+    };
   }
 };
 
-export const identifyUser = async (userId: string, anonId: string) => {
+export const identifyUser = async (userId: string, anonId: string): Promise<IApiResponse> => {
+  const { apiUrl, projectToken } = mixpanelConfig;
+
   try {
-    await axios.post(MIXPANEL_API_URL, null, {
+    const response = await axios.post(apiUrl, null, {
       params: {
         data: JSON.stringify({
           event: '$identify',
           properties: {
             $distinct_id: userId,
             $anon_id: anonId,
-            token: PROJECT_TOKEN,
+            token: projectToken,
           },
         }),
       },
     });
-  } catch (error) {
-    console.error('Error identifying user:', error);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: 'User identified successfully',
+    };
+  } catch (error: any) {
+    const errorResponse = error.response?.data || {};
+    return {
+      status: error.response?.status || 500,
+      errorCode: errorResponse.errorCode,
+      message: errorResponse.message || 'Error identifying user',
+      data: {},
+    };
   }
 };
 
-export const trackUserEvent = async (distinctId: string, eventName: string, properties: any) => {
+export const trackUserEvent = async (distinctId: string, eventName: string, properties: EventProperties): Promise<IApiResponse> => {
+  const { apiUrl, projectToken } = mixpanelConfig;
+
   try {
-    await axios.post(MIXPANEL_API_URL, null, {
+    const response = await axios.post(apiUrl, null, {
       params: {
         data: JSON.stringify({
           event: eventName,
           properties: {
             distinct_id: distinctId,
-            token: PROJECT_TOKEN,
+            token: projectToken,
             ...properties,
           },
         }),
       },
     });
-  } catch (error) {
-    console.error('Error tracking user event:', error);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: 'Event tracked successfully',
+    };
+  } catch (error: any) {
+    const errorResponse = error.response?.data || {};
+    return {
+      status: error.response?.status || 500,
+      errorCode: errorResponse.errorCode,
+      message: errorResponse.message || 'Error tracking user event',
+      data: {},
+    };
   }
 };
 
-export const createAlias = async (distinctId: string, aliasId: string) => {
+export const createAlias = async (distinctId: string, aliasId: string): Promise<IApiResponse> => {
+  const { apiUrl, projectToken } = mixpanelConfig;
+
   try {
-    await axios.post(MIXPANEL_API_URL, null, {
+    const response = await axios.post(apiUrl, null, {
       params: {
         data: JSON.stringify({
           event: '$create_alias',
           properties: {
             distinct_id: distinctId,
             alias: aliasId,
-            token: PROJECT_TOKEN,
+            token: projectToken,
           },
         }),
       },
     });
-  } catch (error) {
-    console.error('Error creating alias in Mixpanel:', error);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: 'Alias created successfully',
+    };
+  } catch (error: any) {
+    const errorResponse = error.response?.data || {};
+    return {
+      status: error.response?.status || 500,
+      errorCode: errorResponse.errorCode,
+      message: errorResponse.message || 'Error creating alias in Mixpanel',
+      data: {},
+    };
   }
 };
 
-export const mergeIdentities = async (anonId: string, identifiedId: string) => {
+export const mergeIdentities = async (anonId: string, identifiedId: string): Promise<IApiResponse> => {
+  const { importApiUrl, projectToken, apiSecretToken } = mixpanelConfig;
+
   try {
-    await axios.post(MIXPANEL_IMPORT_API_URL, null, {
+    const response = await axios.post(importApiUrl, null, {
       params: {
         data: JSON.stringify({
           event: '$merge',
           properties: {
             $distinct_ids: [anonId, identifiedId],
           },
-          token: PROJECT_TOKEN,
+          token: projectToken,
         }),
       },
       auth: {
-        username: PROJECT_TOKEN,
-        password: 'g59Vapf902dkCdlyFP9sKucdWb8QVffP',
+        username: projectToken,
+        password: apiSecretToken
       },
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     });
-  } catch (error) {
-    console.error('Error merging identities in Mixpanel:', error);
+
+    return {
+      status: response.status,
+      data: response.data,
+      message: 'Identities merged successfully',
+    };
+  } catch (error: any) {
+    const errorResponse = error.response?.data || {};
+    return {
+      status: error.response?.status || 500,
+      errorCode: errorResponse.errorCode,
+      message: errorResponse.message || 'Error merging identities in Mixpanel',
+      data: {},
+    };
   }
 };

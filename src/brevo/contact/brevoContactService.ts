@@ -19,7 +19,7 @@ export const getAllContacts = async (
       params: { limit, offset, sort },
     });
     return {
-      status: 200,
+      status: response.status,
       data: response.data,
       message: 'Contacts retrieved successfully',
     };
@@ -50,7 +50,7 @@ export const createContact = async (
       updateEnabled,
     });
     return {
-      status: 201,
+      status: response.status,
       data: response.data,
       message: 'Contact successfully created',
     };
@@ -73,7 +73,7 @@ export const getContactById = async (
   try {
     const response = await apiInstance.get(`/contacts/${identifier}`);
     return {
-      status: 200,
+      status: response.status,
       data: response.data,
       message: 'Contact details retrieved successfully',
     };
@@ -98,14 +98,14 @@ export const updateContact = async (
   const apiInstance = initializeBrevoClient();
 
   try {
-    await apiInstance.put(`/contacts/${identifier}`, {
+    const response = await apiInstance.put(`/contacts/${identifier}`, {
       email,
       attributes,
       listIds,
       updateEnabled,
     });
     return {
-      status: 204,
+      status: response.status,
       data: {},
       message: 'Contact successfully updated',
     };
@@ -126,9 +126,9 @@ export const deleteContact = async (
   const apiInstance = initializeBrevoClient();
 
   try {
-    await apiInstance.delete(`/contacts/${identifier}`);
+    const response = await apiInstance.delete(`/contacts/${identifier}`);
     return {
-      status: 204,
+      status: response.status,
       data: {},
       message: 'Contact successfully deleted',
     };

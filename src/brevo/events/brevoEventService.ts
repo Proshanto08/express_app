@@ -34,9 +34,9 @@ export const createEvent = async (eventOptions: CreateEventOptions): Promise<IAp
   try {
     const response = await apiInstance.post('/events', eventOptions);
     return {
-      status: 204,
-      message: 'Event created successfully',
+      status: response.status,
       data: response.data,
+      message: 'Event created successfully',
     };
   } catch (error: any) {
     const errorResponse = error.response?.data || {};

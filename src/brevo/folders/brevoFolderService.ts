@@ -1,11 +1,7 @@
 import { initializeBrevoClient } from '../../config/brevoConfig';
+import { IApiResponse } from '../../types'
 
-interface IApiResponse {
-  status: number;
-  errorCode?: string;
-  message?: string;
-  data: any;
-}
+
 
 export const createFolder = async (name: string): Promise<IApiResponse> => {
   const apiInstance = initializeBrevoClient();
@@ -13,7 +9,7 @@ export const createFolder = async (name: string): Promise<IApiResponse> => {
   try {
     const response = await apiInstance.post('/contacts/folders', { name });
     return {
-      status: 201,
+      status: response.status,
       data: response.data,
       message: 'Folder successfully created',
     };
@@ -40,7 +36,7 @@ export const getFolders = async (
       params: { limit, offset, sort },
     });
     return {
-      status: 200,
+      status: response.status,
       data: response.data,
       message: 'Folders retrieved successfully',
     };
@@ -61,7 +57,7 @@ export const getFolder = async (folderId: number): Promise<IApiResponse> => {
   try {
     const response = await apiInstance.get(`/contacts/folders/${folderId}`);
     return {
-      status: 200,
+      status: response.status,
       data: response.data,
       message: 'Folder details retrieved successfully',
     };
@@ -83,10 +79,10 @@ export const updateFolder = async (
   const apiInstance = initializeBrevoClient();
 
   try {
-    await apiInstance.put(`/contacts/folders/${folderId}`, { name });
+    const response = await apiInstance.put(`/contacts/folders/${folderId}`, { name });
     return {
-      status: 204,
-      data: {},
+      status: response.status,
+      data: response.data,
       message: 'Folder successfully updated',
     };
   } catch (error: any) {
@@ -104,10 +100,10 @@ export const deleteFolder = async (folderId: number): Promise<IApiResponse> => {
   const apiInstance = initializeBrevoClient();
 
   try {
-    await apiInstance.delete(`/contacts/folders/${folderId}`);
+    const response = await apiInstance.delete(`/contacts/folders/${folderId}`);
     return {
-      status: 204,
-      data: {},
+      status: response.status,
+      data: response.data,
       message: 'Folder successfully deleted',
     };
   } catch (error: any) {
@@ -134,7 +130,7 @@ export const getFolderLists = async (
       params: { limit, offset, sort },
     });
     return {
-      status: 200,
+      status: response.status,
       data: response.data,
       message: 'Folder lists fetched successfully',
     };
